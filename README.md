@@ -86,7 +86,7 @@ Run in the built-in browser with Sofia Pro installed.
   - page overflow 0;
   - selects at 16px on phones;
   - one control height per bank.
-- **Figure height:** at 1280px, 742px for England and at most 752px with any of the 151 councils selected, under either measure.
+- **Figure height:** at 1280px, 740px for England and at most 752px with any of the 151 councils selected, under either measure.
 - **Values** match `outputs/tables/wage_uplift_council.csv` for Suffolk, Hartlepool and Westminster at 9% and 15%, and the England totals.
 - **Resize contract:** on the live GitHub Pages review page, the automatic ResizeObserver resize works. The iframe went from 688px to 836px when Kent was selected and back to 688px on "Back to England". `interactive_view` fired once.
 
