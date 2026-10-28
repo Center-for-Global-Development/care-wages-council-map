@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Care wage map preview</title>
+<style>
+  :root{--font-sans:"Sofia Pro","Inter","Helvetica Neue",Arial,sans-serif}
+  body{margin:0;padding:24px 16px;background:#F3F6F7;color:#1A272A;font-family:var(--font-sans)}
+  .page{max-width:960px;margin:0 auto}
+  p{font-size:14px;line-height:1.5;color:#394649}
+  iframe{display:block;width:100%;border:0;background:#fff;height:600px}
+  #log{font:12px/1.4 ui-monospace,Consolas,monospace;color:#394649;white-space:pre-wrap;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="page">
+  <p>Review page: embeds the figure the way cgdev.org does and applies the height the figure reports. Not for publication.</p>
+  <iframe id="frame" src="care-wage-council-map.html" title="Map: what higher care wages would cost each English council"></iframe>
+  <div id="log"></div>
+</div>
+<script>
+  const frame = document.getElementById('frame'), log = document.getElementById('log');
+  const lines = [];
+  window.addEventListener('message', e => {
+    if (e.source !== frame.contentWindow || !e.data) return;
+    if (e.data.type === 'cgd-iframe-resize' && Number.isFinite(e.data.height)) frame.style.height = e.data.height + 'px';
+    lines.push(JSON.stringify(e.data));
+    log.textContent = lines.slice(-8).join('\n');
+  });
+</script>
+</body>
+</html>

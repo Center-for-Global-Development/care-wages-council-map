@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en" data-cgd-interactive-name="care-wages-council-costs-map">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>What higher care wages would cost each council</title>
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261028b">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261028b">
+<style>
+  /* Wide: map on the left, controls and the detail panel stacked on the right, so
+     the whole figure fits on one laptop screen. Phones: controls, map, detail.
+     The id selector deliberately outranks the shared .controls grid. */
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 318px;grid-template-areas:"map ctl" "map det";grid-template-rows:auto 1fr;gap:8px 12px;align-items:start}
+  #controls{grid-area:ctl;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:0}
+  #controls .control-group{min-width:0}
+  #controls .segmented{width:100%}
+  #controls .segmented button{flex:1 1 0}
+  #benchToggle button{font-variant-numeric:tabular-nums}
+  .bench-note{margin-top:4px;color:var(--cgd-dark-gray);font-size:11px;line-height:1.3}
+  .bench-note b{display:block;color:var(--cgd-teal);font-weight:600}
+  .map-panel{grid-area:map;margin:0}
+  #detail{grid-area:det}
+
+  .scale-legend{display:flex;align-items:center;gap:4px 8px;font-size:10.2px;color:var(--cgd-dark-gray);flex-wrap:wrap;justify-content:flex-end}
+  .scale-legend .bin{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+  .scale-legend .chip{width:18px;height:10px;border:1px solid rgba(26,39,42,.08)}
+  .legend-title{color:var(--cgd-teal);font-size:12px;font-weight:700;white-space:nowrap}
+
+  .map{position:relative;background:#F7FAFA;border:1px solid #EDF2F3;border-radius:10px;overflow:hidden}
+  .map svg{display:block;width:100%;height:auto;max-height:510px;touch-action:manipulation}
+  .area{stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;fill:var(--area-fill,#DFE0E2);cursor:pointer}
+  .area.nodata{fill:url(#ndHatch);cursor:default}
+  .outline{fill:none;pointer-events:none;vector-effect:non-scaling-stroke}
+  .outline.hover{stroke:var(--cgd-teal-black);stroke-width:1.4}
+  .outline.selected{stroke:var(--cgd-gold);stroke-width:2.6}
+  .inset-frame{fill:#fff;fill-opacity:.65;stroke:#C9D6DA;stroke-width:1;vector-effect:non-scaling-stroke}
+  .inset-label{fill:var(--cgd-teal);font-size:12px;font-weight:700}
+
+  .detail{border:1px solid var(--border);border-radius:10px;background:var(--cgd-offwhite);padding:10px 11px;font-size:12px;line-height:1.38}
+  .detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .detail h2{margin:0;color:var(--cgd-teal);font-size:15px;line-height:1.2}
+  .detail .detail-sub{margin:2px 0 0;color:var(--cgd-dark-gray);font-size:11.2px}
+  .detail dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;margin:7px 0 0}
+  .detail dt{color:var(--cgd-dark-gray)}
+  .detail dd{margin:0;color:var(--cgd-teal);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+  .detail .block-title{margin:8px 0 0;padding-top:7px;border-top:1px solid var(--border);color:var(--cgd-teal);font-weight:700;font-size:12px}
+  .detail table.lines{width:100%;border-collapse:collapse;margin-top:5px;font-size:11.6px;font-variant-numeric:tabular-nums}
+  .detail table.lines th,.detail table.lines td{padding:2px 0;text-align:right;font-weight:600;color:var(--cgd-teal);border-bottom:1px solid #E8EEF0}
+  .detail table.lines th[scope="row"]{text-align:left;font-weight:400;color:var(--cgd-dark-gray);padding-right:6px}
+  .detail table.lines thead th{color:var(--cgd-dark-gray);font-weight:600;font-size:10.5px;text-align:right;padding-bottom:4px}
+  .detail table.lines thead th:first-child{text-align:left}
+  .detail table.lines td + td{padding-left:8px}
+  .detail table.lines tr.near th,.detail table.lines tr.near td{color:var(--cgd-teal-black);font-weight:700}
+  .detail .hint{margin:9px 0 0;color:var(--cgd-dark-gray);font-size:11.2px}
+  .detail .clear-btn{flex:0 0 auto;border:1px solid var(--border);background:#fff;color:var(--cgd-teal);border-radius:8px;font:inherit;font-size:11px;font-weight:600;padding:4px 8px;min-height:26px;cursor:pointer}
+  .detail .clear-btn:hover,.detail .clear-btn:focus-visible{border-color:var(--cgd-teal-gray);outline:none;box-shadow:0 0 0 3px rgba(11,76,91,.10)}
+
+  /* Notes: smaller than the house 10.8px at the author's request; links in teal. */
+  #notes{font-size:9.6px;line-height:1.4;margin-top:8px;padding-top:6px}
+  #notes a{color:var(--cgd-teal);text-decoration:underline;text-underline-offset:1px}
+
+  @media (max-width:760px){
+    .layout{grid-template-columns:minmax(0,1fr) 280px}
+    .panel-header{grid-template-columns:minmax(0,1fr)}
+    .scale-legend{justify-content:flex-start}
+  }
+  @media (max-width:600px){
+    .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"ctl" "map" "det"}
+    #controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #benchGroup{grid-column:1/-1}
+  }
+  @media (max-width:520px){
+    #controls{grid-template-columns:minmax(0,1fr)}
+  }
+  /* Phones render the select at 16px (no iOS zoom), which makes it 37px; match it. */
+  .cgd-mobile-embed #controls .segmented{min-height:37px}
+</style>
+</head>
+<body>
+<main id="vizRoot" class="viz-wrapper">
+  <div class="header-row">
+    <div class="title-block">
+      <h1 id="vizTitle">Higher care wages would cost some councils far more than others</h1>
+      <p class="viz-sub">Yearly cost to councils if care labour costs rose, on 2025/26 spending</p>
+    </div>
+    <button class="fullscreen-btn" id="fullscreenBtn" type="button" aria-label="View fullscreen" data-tip="View fullscreen">
+      <svg class="icon-expand" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="icon-compress" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M8 21v-5H3M16 21v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <div class="layout">
+    <div class="controls" id="controls" aria-label="Map controls">
+      <div class="control-group" id="benchGroup">
+        <div class="control-label" id="benchLabel">Care labour costs higher by</div>
+        <div class="segmented" id="benchToggle" role="group" aria-labelledby="benchLabel"></div>
+        <div class="bench-note" id="benchNote"></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label">Compare with</div>
+        <div class="segmented" id="measureToggle" role="group" aria-label="Shade councils by">
+          <button type="button" data-measure="ct" aria-pressed="true" data-tip="Each council's own 2025/26 council tax requirement, excluding district, police, fire and parish precepts">Council tax</button>
+          <button type="button" data-measure="csp" aria-pressed="false" data-tip="Core spending power 2025/26: the government's measure of a council's core revenue funding">Spending power</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <label for="councilSelect">Find a council</label>
+        <select id="councilSelect" class="plain-select"></select>
+      </div>
+    </div>
+    <section class="panel map-panel">
+      <div class="panel-header">
+        <div class="legend-title" id="legendTitle"></div>
+        <div class="scale-legend" id="scaleLegend"></div>
+      </div>
+      <div class="chart-area"><div class="map" id="map"></div></div>
+    </section>
+    <aside class="detail" id="detail" aria-label="Selected council"></aside>
+  </div>
+  <div class="notes" id="notes"></div>
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+</main>
+
+<script src="shared/dom.js?v=20261028b"></script>
+<script src="shared/chart-core.js?v=20261028b"></script>
+<script src="data/care-wage-map-data.js?v=20261028b"></script>
+<script>
+(() => {
+  'use strict';
+  const { element, svgEl } = window.CGDDom;
+  const D = window.CARE_WAGE_MAP;
+  const MEDIAN_PAY = 12.60;   // Skills for Care, care/support-worker median, March 2026
+  const BENCHMARKS = [
+    { u: 2.5, short: '2.5%', label: 'NHS Band 2 rate', text: 'NHS Band 2 pay rate, 2026/27 (£12.92 an hour)' },
+    { u: 4.5, short: '4.5%', label: 'NHS Band 3 entry rate', text: 'NHS Band 3 entry rate, 2026/27 (£13.17 an hour)' },
+    { u: 9,   short: '9%',   label: 'MAC: £1 above minimum wage', text: 'Migration Advisory Committee (2022): £1 above the minimum wage (£13.71 an hour)' },
+    { u: 12,  short: '12%',  label: 'NHS Band 3 after two years', text: 'NHS Band 3 after two years, 2026/27 (£14.05 an hour)' },
+    { u: 15,  short: '15%',  label: 'Mid-point of evidence on pay needed', text: 'Middle of the 10–20% premium over the minimum wage that the evidence suggests may be needed to attract more UK workers' }
+  ];
+  /* Fixed bins per measure, held across the benchmarks so a colour change means
+     a cost change. Council tax breaks at 5%: close to one year's maximum rise
+     (4.99%). Bins are set to spread councils across the 4.5–15% range. */
+  const MEASURES = {
+    ct:  { label: '% of council tax requirement', short: 'council tax', bins: [2.5, 5, 7.5, 10, 15] },
+    csp: { label: '% of core spending power', short: 'spending power', bins: [1, 2, 3, 4, 6] }
+  };
+  const SEQ = ['#BFDEE0', '#6FBACB', '#2D99B5', '#006970', '#0B4C5B', '#1A272A'];
+
+  const byGss = new Map(D.councils.map(c => [c.gss, c]));
+  // Short display names for the budget lines (data labels are longer).
+  const LINE_NAMES = { library_nce: 'Libraries', nce_cultural: 'Culture and leisure', nce_public_health: 'Public health', nce_highways_transport: 'Highways and transport', nce_environmental: 'Environment and waste', nce_childrens_sc: "Children's social care" };
+  const nf1 = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const nf2 = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const nf0 = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
+  const trim = s => s.replace(/\.0+(?=\D*$)/, '');
+  const fmtUplift = u => trim(nf1.format(u)) + '%';
+  const fmtPct = v => v == null ? 'N/A' : nf1.format(v) + '%';
+  const fmtM = v => v == null ? 'N/A' : v >= 1000 ? '£' + nf2.format(v / 1000) + 'bn' : v < 1 ? '£' + nf2.format(v) + 'm' : '£' + nf1.format(v) + 'm';
+  const fmtGbp = v => v == null ? 'N/A' : '£' + nf0.format(v);
+  const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+  const fmtX = r => r == null ? 'N/A' : r < 0.1 ? '<0.1×' : nf1.format(r) + '×';
+
+  /* ---- Model: cost is linear in the uplift (scripts/14_wage_uplift.py) ---- */
+  function metrics(c, u) {
+    const cost = c.per1 * u;
+    return {
+      cost,
+      ct: c.ct ? 100 * cost / c.ct : null,
+      csp: c.csp ? 100 * cost / c.csp : null,
+      perDwelling: c.dwellings ? cost * 1e6 / c.dwellings : null
+    };
+  }
+  function nearestLine(c, cost) {
+    let best = null;
+    for (const [key, label] of Object.entries(D.services)) {
+      const spend = c.services[key];
+      if (spend == null) continue;
+      const gap = Math.abs(Math.log(cost / spend));
+      if (!best || gap < best.gap) best = { key, label: LINE_NAMES[key] || label, spend, gap };
+    }
+    return best;
+  }
+  function england(u) {
+    const sum = k => D.councils.reduce((a, c) => a + (c[k] || 0), 0);
+    const cost = sum('per1') * u;
+    const vals = D.councils.map(c => metrics(c, u).ct).filter(v => v != null).sort((a, b) => a - b);
+    const mid = vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2;
+    return {
+      cost, ct: 100 * cost / sum('ct'), csp: 100 * cost / sum('csp'),
+      perDwelling: cost * 1e6 / sum('dwellings'), medianCt: mid,
+      over5: vals.filter(v => v > 4.99).length, n: D.councils.length
+    };
+  }
+  const binOf = (v, bins) => { if (v == null) return -1; let i = 0; while (i < bins.length && v >= bins[i]) i++; return i; };
+
+  /* ---- State: one object; everything is derived from it ---- */
+  let state = { u: 9, measure: 'ct', selected: null };
+  const setState = patch => { state = Object.freeze({ ...state, ...patch }); render(); };
+
+  /* ---- Controls ---- */
+  const benchBox = document.getElementById('benchToggle');
+  BENCHMARKS.forEach(b => {
+    const btn = element('button', { text: b.short, attributes: { type: 'button', 'data-u': b.u, 'aria-pressed': 'false', 'data-tip': b.text } });
+    btn.addEventListener('click', () => { setState({ u: b.u }); window.CGDTracking?.engagement('filter', 'wage_benchmark', b.short); });
+    benchBox.append(btn);
+  });
+  document.getElementById('measureToggle').addEventListener('click', e => {
+    const b = e.target.closest('button[data-measure]'); if (!b) return;
+    setState({ measure: b.dataset.measure });
+    window.CGDTracking?.engagement('view_control', 'compare_with', b.dataset.measure);
+  });
+  const select = document.getElementById('councilSelect');
+  select.append(element('option', { text: 'All councils', attributes: { value: '' } }));
+  [...D.councils].sort((a, b) => a.name.localeCompare(b.name)).forEach(c => select.append(element('option', { text: c.name, attributes: { value: c.gss } })));
+  select.addEventListener('change', () => {
+    setState({ selected: select.value || null });
+    window.CGDTracking?.engagement('filter', 'council_select', select.value ? 'selected' : 'cleared');
+  });
+
+  /* ---- Map (drawn once; render() only recolours) ---- */
+  const mapEl = document.getElementById('map');
+  const [, , VW, VH] = D.viewBox;
+  const svg = svgEl('svg', { viewBox: `0 0 ${VW} ${VH}`, role: 'img', 'aria-labelledby': 'vizTitle', 'aria-describedby': 'detail' });
+  const defs = svgEl('defs');
+  const pat = svgEl('pattern', { id: 'ndHatch', width: 5, height: 5, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' });
+  pat.append(svgEl('rect', { width: 5, height: 5, fill: '#EDEFF0' }), svgEl('line', { x1: 0, y1: 0, x2: 0, y2: 5, stroke: '#C3CBCE', 'stroke-width': 1.6 }));
+  defs.append(pat); svg.append(defs);
+  svg.addEventListener('click', e => { if (!e.target.closest('.area')) { hideTip(); if (state.selected) setState({ selected: null }); } });
+
+  const mainG = svgEl('g'), insetG = svgEl('g'), insetFrameG = svgEl('g');
+  const outlineHover = svgEl('g'), outlineSel = svgEl('g');
+  svg.append(mainG, insetFrameG, insetG, outlineHover, outlineSel);
+  const paths = [];   // {node, area, inset}
+  function addArea(area, parent, inset) {
+    const p = svgEl('path', { d: area.d, class: 'area' + (byGss.has(area.gss) ? '' : ' nodata') });
+    parent.append(p);
+    paths.push({ node: p, area, inset });
+    p.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') { showTip(area, e); hoverOutline(area); } });
+    p.addEventListener('pointermove', e => { if (e.pointerType !== 'touch') placeTip(e.clientX, e.clientY); });
+    p.addEventListener('pointerleave', () => { hideTip(); outlineHover.replaceChildren(); });
+    p.addEventListener('click', e => {
+      if (!byGss.has(area.gss)) { showTip(area, e); return; }
+      const next = state.selected === area.gss ? null : area.gss;
+      setState({ selected: next });
+      if (e.pointerType === 'touch' || e.detail === 0) showTip(area, e);
+      window.CGDTracking?.engagement('detail_open', 'council_map_click', next ? 'selected' : 'cleared');
+    });
+  }
+  D.areas.forEach(a => addArea(a, mainG, false));
+  mapEl.append(svg);
+
+  // London inset in the empty North Sea corner, scaled from the boroughs' own extent.
+  const london = D.areas.filter(a => a.london);
+  const tmp = svgEl('g'); london.forEach(a => tmp.append(svgEl('path', { d: a.d }))); mainG.append(tmp);
+  const lb = tmp.getBBox(); tmp.remove();
+  const IN = { x: 6, y: 40, w: 205, h: 185 };   // Irish Sea: no land underneath
+  const k = Math.min((IN.w - 16) / lb.width, (IN.h - 34) / lb.height);
+  const tx = IN.x + (IN.w - lb.width * k) / 2 - lb.x * k, ty = IN.y + 26 + (IN.h - 34 - lb.height * k) / 2 - lb.y * k;
+  insetFrameG.append(
+    svgEl('rect', { class: 'inset-frame', x: IN.x, y: IN.y, width: IN.w, height: IN.h, rx: 6 })
+  );
+  const lt = svgEl('text', { class: 'inset-label', x: IN.x + 9, y: IN.y + 18 }); lt.textContent = 'London'; insetFrameG.append(lt);
+  insetG.setAttribute('transform', `translate(${tx},${ty}) scale(${k})`);
+  london.forEach(a => addArea(a, insetG, true));
+
+  function outlineFor(area, layer, cls) {
+    layer.replaceChildren();
+    const same = paths.filter(p => p.area.gss === area.gss && (area.london ? true : !p.inset));
+    same.forEach(p => {
+      const o = svgEl('path', { d: p.area.d, class: 'outline ' + cls });
+      if (p.inset) o.setAttribute('transform', insetG.getAttribute('transform'));
+      layer.append(o);
+    });
+  }
+  const hoverOutline = area => outlineFor(area, outlineHover, 'hover');
+
+  /* ---- Tooltip ---- */
+  const tooltip = document.getElementById('tooltip');
+  let tipArea = null;
+  function tipContent(area) {
+    const c = byGss.get(area.gss);
+    if (!c) return [element('strong', { text: area.name }), element('div', { text: 'Not included in this analysis' })];
+    const m = metrics(c, state.u), near = nearestLine(c, m.cost), lib = c.services.library_nce;
+    const title = area.code !== area.gss ? `${area.name} (counted with ${c.name})` : c.name;
+    const grid = element('div', { className: 'tooltip-grid' });
+    const row = (k, v) => grid.append(element('span', { text: k }), element('b', { text: v }));
+    row('Extra cost a year', fmtM(m.cost));
+    row('Share of council tax', fmtPct(m.ct));
+    row('Share of spending power', fmtPct(m.csp));
+    row('Per dwelling', fmtGbp(m.perDwelling));
+    if (lib != null) row('Compared with libraries', fmtX(m.cost / lib));
+    const out = [element('strong', { text: title }), element('div', { text: `${fmtUplift(state.u)} higher care labour costs` }), grid];
+    if (near) out.push(element('div', { text: `Closest budget line: ${near.label.toLowerCase()} (${fmtM(near.spend)} net)` }));
+    return out;
+  }
+  function placeTip(cx, cy) {
+    const pad = 8, box = tooltip.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+    let l = cx + 14, t = cy + 14;
+    if (l + box.width > vw - pad) l = cx - box.width - 14;
+    if (t + box.height > vh - pad) t = cy - box.height - 14;
+    tooltip.style.left = Math.max(pad, Math.min(l, vw - box.width - pad)) + 'px';
+    tooltip.style.top = Math.max(pad, Math.min(t, vh - box.height - pad)) + 'px';
+  }
+  function showTip(area, e) {
+    tipArea = area;
+    const host = document.fullscreenElement || document.getElementById('vizRoot');
+    if (tooltip.parentNode !== host) host.append(tooltip);
+    tooltip.replaceChildren(...tipContent(area));
+    tooltip.hidden = false;
+    let x = e?.clientX, y = e?.clientY;
+    if (!Number.isFinite(x) || (x === 0 && y === 0)) { const b = e.target.getBoundingClientRect(); x = b.left + b.width / 2; y = b.top + b.height / 2; }
+    placeTip(x, y);
+  }
+  function hideTip() { tooltip.hidden = true; tipArea = null; }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { hideTip(); outlineHover.replaceChildren(); } });
+  document.addEventListener('scroll', hideTip, true);
+
+  /* ---- Legend, detail, notes ---- */
+  function renderLegend() {
+    const M = MEASURES[state.measure], el = document.getElementById('scaleLegend');
+    document.getElementById('legendTitle').textContent = M.label;
+    el.replaceChildren();
+    const labels = SEQ.map((_, i) => i === 0 ? `<${M.bins[0]}` : i === SEQ.length - 1 ? `${M.bins[i - 1]}+` : `${M.bins[i - 1]}–${M.bins[i]}`);
+    SEQ.forEach((col, i) => {
+      const chip = element('span', { className: 'chip' }); chip.style.background = col;
+      el.append(element('span', { className: 'bin' }, [chip, element('span', { text: labels[i] })]));
+    });
+    const nd = element('span', { className: 'chip' }); nd.style.background = 'repeating-linear-gradient(45deg,#EDEFF0,#EDEFF0 2px,#C3CBCE 2px,#C3CBCE 4px)';
+    el.append(element('span', { className: 'bin' }, [nd, element('span', { text: 'not included' })]));
+  }
+  function dl(rows) {
+    const list = element('dl');
+    rows.forEach(([k, v]) => list.append(element('dt', { text: k }), element('dd', { text: v })));
+    return list;
+  }
+  function renderDetail() {
+    const box = document.getElementById('detail');
+    const u = state.u;
+    if (!state.selected) {
+      const E = england(u);
+      box.replaceChildren(
+        element('h2', { text: 'England' }),
+        element('p', { className: 'detail-sub', text: `All ${D.councils.length} councils with adult social care duties` }),
+        dl([
+          ['Extra cost a year', fmtM(E.cost)],
+          ['Share of council tax', fmtPct(E.ct)],
+          ['Share of spending power', fmtPct(E.csp)],
+          ['Per dwelling', fmtGbp(E.perDwelling)],
+          ['Median council, share of council tax', fmtPct(E.medianCt)],
+          ['Councils above 5% of council tax', `${E.over5} of ${E.n}`]
+        ]),
+        element('p', { className: 'hint', text: 'Select a council on the map or from the list to compare the cost with its other budgets.' })
+      );
+      return;
+    }
+    const c = byGss.get(state.selected), m = metrics(c, u), near = nearestLine(c, m.cost);
+    const ranked = D.councils.map(x => metrics(x, u)[state.measure]).filter(v => v != null).sort((a, b) => b - a);
+    const rank = ranked.findIndex(v => v <= m[state.measure] + 1e-12) + 1;
+    const table = element('table', { className: 'lines' });
+    const head = element('tr');
+    ['Net budget', 'Spend', 'Cost ÷ spend'].forEach(h => head.append(element('th', { text: h, attributes: { scope: 'col' } })));
+    table.append(element('thead', {}, [head]));
+    const body = element('tbody');
+    Object.entries(D.services).forEach(([key, label]) => {
+      const s = c.services[key];
+      const tr = element('tr', near && near.key === key ? { className: 'near' } : {});
+      tr.append(element('th', { text: LINE_NAMES[key] || label, attributes: { scope: 'row' } }),
+                element('td', { text: s == null ? '–' : fmtM(s) }),
+                element('td', { text: s == null ? 'n/a' : fmtX(m.cost / s) }));
+      body.append(tr);
+    });
+    table.append(body);
+    const clear = element('button', { className: 'clear-btn', text: 'Back to England', attributes: { type: 'button' } });
+    clear.addEventListener('click', () => setState({ selected: null }));
+    box.replaceChildren(
+      element('div', { className: 'detail-head' }, [element('h2', { text: c.name }), clear]),
+      element('p', { className: 'detail-sub', text: `${c.type}, ${c.region}` }),
+      dl([
+        ['Extra cost a year', fmtM(m.cost)],
+        ['Share of council tax', fmtPct(m.ct)],
+        ['Share of spending power', fmtPct(m.csp)],
+        ['Per dwelling', fmtGbp(m.perDwelling)],
+        [`Rank by share of ${MEASURES[state.measure].short}`, `${ordinal(rank)} highest of ${ranked.length}`]
+      ]),
+      element('p', { className: 'block-title', text: `Compared with its other budgets (${D.baseYear})` }),
+      Object.values(c.services).some(v => v != null) ? table
+        : element('p', { className: 'hint', text: 'This council has not yet published service spending figures.' })
+    );
+  }
+  const SOURCES = {
+    ascfr: ['DHSC Adult Social Care Finance Report 2025-26', 'https://www.gov.uk/government/statistics/adult-social-care-finance-report-england-2025-to-2026'],
+    ctax: ['MHCLG council tax levels 2025-26', 'https://www.gov.uk/government/statistics/council-tax-levels-set-by-local-authorities-in-england-2025-to-2026'],
+    csp: ['core spending power', 'https://www.gov.uk/government/publications/explanatory-note-on-core-spending-power-final-local-government-finance-settlement-2025-to-2026/explanatory-note-on-core-spending-power-final-local-government-finance-settlement-2025-to-2026'],
+    ro: ['revenue outturn', 'https://www.gov.uk/government/collections/local-authority-revenue-expenditure-and-financing'],
+    sfc: ['Skills for Care', 'https://www.skillsforcare.org.uk/Adult-Social-Care-Workforce-Data/workforceintelligence/resources/Reports/National/The-state-of-the-adult-social-care-sector-and-workforce-in-England-2026.pdf'],
+    ons: ['ONS boundaries (December 2024)', 'https://geoportal.statistics.gov.uk/datasets/ons::counties-and-unitary-authorities-december-2024-boundaries-uk-buc']
+  };
+  function renderNotes() {
+    const link = key => element('a', { text: SOURCES[key][0], attributes: { href: SOURCES[key][1], target: '_blank', rel: 'noopener' } });
+    document.getElementById('notes').replaceChildren(
+      'Source: CGD analysis of ', link('ascfr'), '; ', link('ctax'), ', ', link('csp'), ' and ', link('ro'), '; ', link('ons'), '. ',
+      'The increase applies to the labour share of councils\' spending on commissioned adult social care (60% of care home fees, 75% of community care, 70% of short-term care), passed on in full in fees: an illustration of scale, not the effect of any particular policy. ',
+      'Council tax is each council\'s own 2025/26 requirement, excluding other precepts; 5% is close to a year\'s maximum rise (4.99%), not a referendum test. ',
+      'Budget lines are 2025/26 net revenue spending (2024/25 where not yet reported). Hourly pay applies the increase to the March 2026 median for care workers (', link('sfc'), '). ',
+      'Nottinghamshire\'s 2025/26 care spending is estimated from 2024/25; Isles of Scilly counted with Cornwall; City of London not included.');
+  }
+
+  /* ---- Render: derive everything from state ---- */
+  function render() {
+    const M = MEASURES[state.measure];
+    const bench = BENCHMARKS.find(b => b.u === state.u);
+    document.getElementById('benchNote').replaceChildren(
+      element('b', { text: bench.label }),
+      element('span', { text: `Median care pay £12.60 → £${nf2.format(MEDIAN_PAY * (1 + state.u / 100))} an hour` }));
+    benchBox.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.u) === state.u)));
+    document.querySelectorAll('#measureToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.measure === state.measure)));
+    select.value = state.selected || '';
+
+    for (const p of paths) {
+      const c = byGss.get(p.area.gss);
+      if (!c) continue;
+      const v = metrics(c, state.u)[state.measure];
+      const bi = binOf(v, M.bins);
+      p.node.style.setProperty('--area-fill', bi < 0 ? '#DFE0E2' : SEQ[bi]);
+    }
+    if (state.selected) outlineFor(byGss.get(state.selected) && D.areas.find(a => a.gss === state.selected && a.code === a.gss) || D.areas.find(a => a.gss === state.selected), outlineSel, 'selected');
+    else outlineSel.replaceChildren();
+    renderLegend();
+    renderDetail();
+    if (tipArea && !tooltip.hidden) tooltip.replaceChildren(...tipContent(tipArea));
+  }
+
+  document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    const r = document.getElementById('vizRoot');
+    if (document.fullscreenElement === r) document.exitFullscreen(); else r.requestFullscreen?.();
+  });
+
+  renderNotes();
+  render();
+  window.CGD_READY = true;
+})();
+</script>
+<script src="shared/cgd-embed.js?v=20261028b"></script>
+</body>
+</html>
