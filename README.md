@@ -60,7 +60,7 @@ python -m http.server 8766
 - **Budget lines:** 2025/26 net revenue spending (revenue outturn), using 2024/25 where a council has not yet reported. Lines with zero or negative net spending show as "–". A council with none (Cumberland) shows a short message instead.
 - **Hourly pay:** £12.60 × (1 + increase), where £12.60 is Skills for Care's March 2026 median.
 - **Projection:** Lambert azimuthal equal-area, centred on England.
-- **Context land:** Scotland, Wales and Northern Ireland are drawn in dim grey from ONS Countries (December 2024, BUC), so their borders match the council boundaries. Ireland, the Isle of Man and France come from Natural Earth 1:50m (world-atlas 2.0.2). They are not interactive. The view is widened to the west so the London inset sits over the Irish Sea.
+- **Context land:** Scotland, Wales and Northern Ireland are drawn in dim grey from ONS Countries (December 2024, BUC), so their borders match the council boundaries. Ireland, the Isle of Man and the French coast come from Natural Earth 1:50m (world-atlas 2.0.2). They are not interactive and are drawn at 60% opacity. The view is widened slightly on both sides (70 units west, 60 east), so England sits centred and the London inset sits over the Irish Sea.
 
 ## Design decisions (settled; change only deliberately)
 
@@ -86,7 +86,7 @@ Run in the built-in browser with Sofia Pro installed.
   - page overflow 0;
   - selects at 16px on phones;
   - one control height per bank.
-- **Figure height:** at 1280px, 740px for England and at most 752px with any of the 151 councils selected, under either measure.
+- **Figure height:** at 1280px, 742px for England and at most 752px with any of the 151 councils selected, under either measure.
 - **Values** match `outputs/tables/wage_uplift_council.csv` for Suffolk, Hartlepool and Westminster at 9% and 15%, and the England totals.
 - **Resize contract:** on the live GitHub Pages review page, the automatic ResizeObserver resize works. The iframe went from 688px to 836px when Kent was selected and back to 688px on "Back to England". `interactive_view` fired once.
 

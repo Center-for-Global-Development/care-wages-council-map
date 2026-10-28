@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>What higher care wages would cost each council</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261028c">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261028c">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261028d">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261028d">
 <style>
   /* Wide: map on the left, controls and the detail panel stacked on the right, so
      the whole figure fits on one laptop screen. Phones: controls, map, detail.
@@ -34,7 +34,7 @@
 
   .map{position:relative;background:#E9F1F5;border:1px solid #EDF2F3;border-radius:10px;overflow:hidden}
   .map svg{display:block;width:100%;height:auto;max-height:495px;touch-action:manipulation}
-  .context{fill:#D6DCDF;stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;pointer-events:none}
+  .context{fill:#D6DCDF;fill-opacity:.6;stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;pointer-events:none}
   .area{stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;fill:var(--area-fill,#DFE0E2);cursor:pointer}
   .area.nodata{fill:url(#ndHatch);cursor:default}
   .outline{fill:none;pointer-events:none;vector-effect:non-scaling-stroke}
@@ -129,9 +129,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261028c"></script>
-<script src="shared/chart-core.js?v=20261028c"></script>
-<script src="data/care-wage-map-data.js?v=20261028c"></script>
+<script src="shared/dom.js?v=20261028d"></script>
+<script src="shared/chart-core.js?v=20261028d"></script>
+<script src="data/care-wage-map-data.js?v=20261028d"></script>
 <script>
 (() => {
   'use strict';
@@ -454,6 +454,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261028c"></script>
+<script src="shared/cgd-embed.js?v=20261028d"></script>
 </body>
 </html>
