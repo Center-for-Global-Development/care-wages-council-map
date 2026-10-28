@@ -16,7 +16,7 @@
   #controls .segmented{width:100%}
   #controls .segmented button{flex:1 1 0}
   #benchToggle button{font-variant-numeric:tabular-nums}
-  .bench-note{margin-top:4px;color:var(--cgd-dark-gray);font-size:11px;line-height:1.3}
+  .bench-note{margin-top:3px;color:var(--cgd-dark-gray);font-size:11px;line-height:1.3}
   .bench-note b{display:block;color:var(--cgd-teal);font-weight:600}
   .map-panel{grid-area:map;margin:0}
   #detail{grid-area:det}
@@ -24,10 +24,16 @@
   .scale-legend{display:flex;align-items:center;gap:4px 8px;font-size:10.2px;color:var(--cgd-dark-gray);flex-wrap:wrap;justify-content:flex-end}
   .scale-legend .bin{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
   .scale-legend .chip{width:18px;height:10px;border:1px solid rgba(26,39,42,.08)}
-  .legend-title{color:var(--cgd-teal);font-size:12px;font-weight:700;white-space:nowrap}
+  .legend-title{color:var(--cgd-teal);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* Title above the colour key at every width: the two measures' titles differ in length, and
+     a side-by-side header reflowed (and shifted the figure) when the measure changed. */
+  .map-panel .panel-header{grid-template-columns:minmax(0,1fr);gap:4px}
+  .map-panel .scale-legend{justify-content:flex-start}
+  /* Fixed-width bin labels so both measures' keys wrap identically. */
+  .scale-legend .bin span:last-child{min-width:3.1em;font-variant-numeric:tabular-nums}
 
   .map{position:relative;background:#F7FAFA;border:1px solid #EDF2F3;border-radius:10px;overflow:hidden}
-  .map svg{display:block;width:100%;height:auto;max-height:510px;touch-action:manipulation}
+  .map svg{display:block;width:100%;height:auto;max-height:495px;touch-action:manipulation}
   .area{stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;fill:var(--area-fill,#DFE0E2);cursor:pointer}
   .area.nodata{fill:url(#ndHatch);cursor:default}
   .outline{fill:none;pointer-events:none;vector-effect:non-scaling-stroke}
@@ -36,14 +42,14 @@
   .inset-frame{fill:#fff;fill-opacity:.65;stroke:#C9D6DA;stroke-width:1;vector-effect:non-scaling-stroke}
   .inset-label{fill:var(--cgd-teal);font-size:12px;font-weight:700}
 
-  .detail{border:1px solid var(--border);border-radius:10px;background:var(--cgd-offwhite);padding:10px 11px;font-size:12px;line-height:1.38}
+  .detail{border:1px solid var(--border);border-radius:10px;background:var(--cgd-offwhite);padding:8px 11px;font-size:12px;line-height:1.38}
   .detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
   .detail h2{margin:0;color:var(--cgd-teal);font-size:15px;line-height:1.2}
   .detail .detail-sub{margin:2px 0 0;color:var(--cgd-dark-gray);font-size:11.2px}
-  .detail dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;margin:7px 0 0}
+  .detail dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;margin:5px 0 0}
   .detail dt{color:var(--cgd-dark-gray)}
   .detail dd{margin:0;color:var(--cgd-teal);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
-  .detail .block-title{margin:8px 0 0;padding-top:7px;border-top:1px solid var(--border);color:var(--cgd-teal);font-weight:700;font-size:12px}
+  .detail .block-title{margin:6px 0 0;padding-top:5px;border-top:1px solid var(--border);color:var(--cgd-teal);font-weight:700;font-size:12px}
   .detail table.lines{width:100%;border-collapse:collapse;margin-top:5px;font-size:11.6px;font-variant-numeric:tabular-nums}
   .detail table.lines th,.detail table.lines td{padding:2px 0;text-align:right;font-weight:600;color:var(--cgd-teal);border-bottom:1px solid #E8EEF0}
   .detail table.lines th[scope="row"]{text-align:left;font-weight:400;color:var(--cgd-dark-gray);padding-right:6px}
@@ -56,11 +62,12 @@
   .detail .clear-btn:hover,.detail .clear-btn:focus-visible{border-color:var(--cgd-teal-gray);outline:none;box-shadow:0 0 0 3px rgba(11,76,91,.10)}
 
   /* Notes: smaller than the house 10.8px at the author's request; links in teal. */
-  #notes{font-size:9.6px;line-height:1.4;margin-top:8px;padding-top:6px}
+  #notes{font-size:9.6px;line-height:1.3;margin-top:8px;padding-top:6px}
   #notes a{color:var(--cgd-teal);text-decoration:underline;text-underline-offset:1px}
 
   @media (max-width:760px){
     .layout{grid-template-columns:minmax(0,1fr) 280px}
+    #measureToggle button{font-size:12px !important;padding-inline:5px !important;white-space:nowrap}
     .panel-header{grid-template-columns:minmax(0,1fr)}
     .scale-legend{justify-content:flex-start}
   }
@@ -97,10 +104,10 @@
         <div class="bench-note" id="benchNote"></div>
       </div>
       <div class="control-group">
-        <div class="control-label">Compare with</div>
+        <div class="control-label">Show the cost as</div>
         <div class="segmented" id="measureToggle" role="group" aria-label="Shade councils by">
-          <button type="button" data-measure="ct" aria-pressed="true" data-tip="Each council's own 2025/26 council tax requirement, excluding district, police, fire and parish precepts">Council tax</button>
-          <button type="button" data-measure="csp" aria-pressed="false" data-tip="Core spending power 2025/26: the government's measure of a council's core revenue funding">Spending power</button>
+          <button type="button" data-measure="ct" aria-pressed="true" data-tip="The rise in council tax needed if the whole cost were met from council tax: the cost as a share of the council's own 2025/26 council tax requirement">Council tax rise</button>
+          <button type="button" data-measure="csp" aria-pressed="false" data-tip="Core spending power 2025/26: the government's measure of a council's core revenue funding">% of spending power</button>
         </div>
       </div>
       <div class="control-group">
@@ -141,8 +148,8 @@
      a cost change. Council tax breaks at 5%: close to one year's maximum rise
      (4.99%). Bins are set to spread councils across the 4.5–15% range. */
   const MEASURES = {
-    ct:  { label: '% of council tax requirement', short: 'council tax', bins: [2.5, 5, 7.5, 10, 15] },
-    csp: { label: '% of core spending power', short: 'spending power', bins: [1, 2, 3, 4, 6] }
+    ct:  { label: 'Council tax rise needed to cover the cost (%)', rank: 'Rank (council tax rise)', bins: [2.5, 5, 7.5, 10, 15] },
+    csp: { label: 'Cost as a share of core spending power (%)', rank: 'Rank (spending power)', bins: [1, 2, 3, 4, 6] }
   };
   const SEQ = ['#BFDEE0', '#6FBACB', '#2D99B5', '#006970', '#0B4C5B', '#1A272A'];
 
@@ -285,7 +292,7 @@
     const grid = element('div', { className: 'tooltip-grid' });
     const row = (k, v) => grid.append(element('span', { text: k }), element('b', { text: v }));
     row('Extra cost a year', fmtM(m.cost));
-    row('Share of council tax', fmtPct(m.ct));
+    row('Council tax rise needed', fmtPct(m.ct));
     row('Share of spending power', fmtPct(m.csp));
     row('Per dwelling', fmtGbp(m.perDwelling));
     if (lib != null) row('Compared with libraries', fmtX(m.cost / lib));
@@ -343,11 +350,11 @@
         element('p', { className: 'detail-sub', text: `All ${D.councils.length} councils with adult social care duties` }),
         dl([
           ['Extra cost a year', fmtM(E.cost)],
-          ['Share of council tax', fmtPct(E.ct)],
+          ['Council tax rise needed', fmtPct(E.ct)],
           ['Share of spending power', fmtPct(E.csp)],
           ['Per dwelling', fmtGbp(E.perDwelling)],
-          ['Median council, share of council tax', fmtPct(E.medianCt)],
-          ['Councils above 5% of council tax', `${E.over5} of ${E.n}`]
+          ['Median council, council tax rise needed', fmtPct(E.medianCt)],
+          ['Councils needing a rise above 5%', `${E.over5} of ${E.n}`]
         ]),
         element('p', { className: 'hint', text: 'Select a council on the map or from the list to compare the cost with its other budgets.' })
       );
@@ -377,10 +384,10 @@
       element('p', { className: 'detail-sub', text: `${c.type}, ${c.region}` }),
       dl([
         ['Extra cost a year', fmtM(m.cost)],
-        ['Share of council tax', fmtPct(m.ct)],
+        ['Council tax rise needed', fmtPct(m.ct)],
         ['Share of spending power', fmtPct(m.csp)],
         ['Per dwelling', fmtGbp(m.perDwelling)],
-        [`Rank by share of ${MEASURES[state.measure].short}`, `${ordinal(rank)} highest of ${ranked.length}`]
+        [MEASURES[state.measure].rank, `${ordinal(rank)} highest of ${ranked.length}`]
       ]),
       element('p', { className: 'block-title', text: `Compared with its other budgets (${D.baseYear})` }),
       Object.values(c.services).some(v => v != null) ? table
@@ -401,7 +408,7 @@
       'Source: CGD analysis of ', link('ascfr'), '; ', link('ctax'), ', ', link('csp'), ' and ', link('ro'), '; ', link('ons'), '. ',
       'The increase applies to the labour share of councils\' spending on commissioned adult social care (60% of care home fees, 75% of community care, 70% of short-term care), passed on in full in fees. ',
       'This should be interpreted as illustrative of the scale of the fiscal impacts of maintaining provision of care. ',
-      'For council tax we show each council\'s own 2025/26 requirement, excluding other precepts; note that 5% exceeds the maximum annual rise (4.99%). ',
+      'The council tax rise needed assumes the full cost of the wage increase is simply passed on through council tax: it is the cost as a share of each council\'s own 2025/26 council tax requirement, excluding other precepts. Note that a 5% increase in council tax exceeds the maximum annual rise (4.99%). ',
       'Budget lines shown are 2025/26 net revenue spending (or 2024/25 where not yet reported). ',
       'Changes to hourly pay apply the increase to the March 2026 median for care workers (per ', link('sfc'), ' data). ',
       'Note that Nottinghamshire\'s 2025/26 care spending is estimated from 2024/25; Isles of Scilly counted with Cornwall; City of London not included.');

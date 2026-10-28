@@ -1,6 +1,6 @@
 # What higher care wages would cost each council: interactive map
 
-An interactive companion to CGD's blog on care wages and council budgets. The reader picks how much higher care labour costs are, using one of five benchmarks (2.5, 4.5, 9, 12 or 15%). Each English council is then shaded by the extra yearly cost as a share of either its council tax requirement or its core spending power.
+An interactive companion to CGD's blog on care wages and council budgets. The reader picks how much higher care labour costs are, using one of five benchmarks (2.5, 4.5, 9, 12 or 15%). Each English council is then shaded either by the council tax rise needed to cover the extra yearly cost (the cost as a share of its council tax requirement, assuming the full cost is passed on through council tax) or by the cost as a share of its core spending power.
 
 Hovering or tapping a council shows:
 - its extra cost, and that cost as a share of council tax and of spending power;
@@ -13,7 +13,7 @@ Selecting a council lists the extra cost against six of its net service budgets.
 The figure is built for a cgdev.org iframe and follows the CGD interactive-visualisation standard.
 
 - **Question:** if care labour costs had to rise by X%, how big would the extra cost be for each council, relative to its own budget?
-- **Default view:** 9% (MAC: £1 above the minimum wage), shaded by share of council tax, with no council selected. The side panel shows England totals.
+- **Default view:** 9% (MAC: £1 above the minimum wage), shaded by council tax rise needed, with no council selected. The side panel shows England totals.
 
 ## Links (GitHub Pages)
 
@@ -71,6 +71,8 @@ python -m http.server 8766
 - **Library comparison** uses net spending, consistent with the other budget lines. The analysis workbook's `x_library_gross` uses gross spending.
 - **Notes** are set at 9.6px (below the house 10.8px) at the author's request, with linked sources.
 - **No data download.**
+- **Measure labels:** the toggle reads "Show the cost as: Council tax rise | % of spending power". The council tax measure is labelled "council tax rise needed" throughout, and the footnote states the full pass-through assumption.
+- **Colour key:** the legend title sits on its own line, and the bin labels have a fixed width, so switching measure never reflows the figure.
 - **Keyboard route:** councils are not tab stops. The keyboard route is the "Find a council" select, and the side panel is the text alternative.
 
 ## Verification (28 Oct 2026)
@@ -83,7 +85,7 @@ Run in the built-in browser with Sofia Pro installed.
   - page overflow 0;
   - selects at 16px on phones;
   - one control height per bank.
-- **Figure height:** 744px (England) to 749px (council selected) at 1024–1280px.
+- **Figure height:** at 1280px, 740px for England and at most 752px with any of the 151 councils selected, under either measure.
 - **Values** match `outputs/tables/wage_uplift_council.csv` for Suffolk, Hartlepool and Westminster at 9% and 15%, and the England totals.
 - **Resize contract:** on the live GitHub Pages review page, the automatic ResizeObserver resize works. The iframe went from 688px to 836px when Kent was selected and back to 688px on "Back to England". `interactive_view` fired once.
 
