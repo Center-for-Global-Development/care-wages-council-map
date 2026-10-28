@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>What higher care wages would cost each council</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261028b">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261028b">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261028c">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261028c">
 <style>
   /* Wide: map on the left, controls and the detail panel stacked on the right, so
      the whole figure fits on one laptop screen. Phones: controls, map, detail.
@@ -32,14 +32,15 @@
   /* Fixed-width bin labels so both measures' keys wrap identically. */
   .scale-legend .bin span:last-child{min-width:3.1em;font-variant-numeric:tabular-nums}
 
-  .map{position:relative;background:#F7FAFA;border:1px solid #EDF2F3;border-radius:10px;overflow:hidden}
+  .map{position:relative;background:#E9F1F5;border:1px solid #EDF2F3;border-radius:10px;overflow:hidden}
   .map svg{display:block;width:100%;height:auto;max-height:495px;touch-action:manipulation}
+  .context{fill:#D6DCDF;stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;pointer-events:none}
   .area{stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;fill:var(--area-fill,#DFE0E2);cursor:pointer}
   .area.nodata{fill:url(#ndHatch);cursor:default}
   .outline{fill:none;pointer-events:none;vector-effect:non-scaling-stroke}
   .outline.hover{stroke:var(--cgd-teal-black);stroke-width:1.4}
   .outline.selected{stroke:var(--cgd-gold);stroke-width:2.6}
-  .inset-frame{fill:#fff;fill-opacity:.65;stroke:#C9D6DA;stroke-width:1;vector-effect:non-scaling-stroke}
+  .inset-frame{fill:#fff;fill-opacity:.92;stroke:#C9D6DA;stroke-width:1;vector-effect:non-scaling-stroke}
   .inset-label{fill:var(--cgd-teal);font-size:12px;font-weight:700}
 
   .detail{border:1px solid var(--border);border-radius:10px;background:var(--cgd-offwhite);padding:8px 11px;font-size:12px;line-height:1.38}
@@ -128,9 +129,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261028b"></script>
-<script src="shared/chart-core.js?v=20261028b"></script>
-<script src="data/care-wage-map-data.js?v=20261028b"></script>
+<script src="shared/dom.js?v=20261028c"></script>
+<script src="shared/chart-core.js?v=20261028c"></script>
+<script src="data/care-wage-map-data.js?v=20261028c"></script>
 <script>
 (() => {
   'use strict';
@@ -226,14 +227,18 @@
 
   /* ---- Map (drawn once; render() only recolours) ---- */
   const mapEl = document.getElementById('map');
-  const [, , VW, VH] = D.viewBox;
-  const svg = svgEl('svg', { viewBox: `0 0 ${VW} ${VH}`, role: 'img', 'aria-labelledby': 'vizTitle', 'aria-describedby': 'detail' });
+  const [VX, VY, VW, VH] = D.viewBox;
+  const svg = svgEl('svg', { viewBox: `${VX} ${VY} ${VW} ${VH}`, role: 'img', 'aria-labelledby': 'vizTitle', 'aria-describedby': 'detail' });
   const defs = svgEl('defs');
   const pat = svgEl('pattern', { id: 'ndHatch', width: 5, height: 5, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' });
   pat.append(svgEl('rect', { width: 5, height: 5, fill: '#EDEFF0' }), svgEl('line', { x1: 0, y1: 0, x2: 0, y2: 5, stroke: '#C3CBCE', 'stroke-width': 1.6 }));
   defs.append(pat); svg.append(defs);
   svg.addEventListener('click', e => { if (!e.target.closest('.area')) { hideTip(); if (state.selected) setState({ selected: null }); } });
 
+  // Scotland, Wales, Northern Ireland and nearby countries: dim context, not interactive.
+  const contextG = svgEl('g', { 'aria-hidden': 'true' });
+  (D.context || []).forEach(c => contextG.append(svgEl('path', { d: c.d, class: 'context' })));
+  svg.append(contextG);
   const mainG = svgEl('g'), insetG = svgEl('g'), insetFrameG = svgEl('g');
   const outlineHover = svgEl('g'), outlineSel = svgEl('g');
   svg.append(mainG, insetFrameG, insetG, outlineHover, outlineSel);
@@ -260,7 +265,7 @@
   const london = D.areas.filter(a => a.london);
   const tmp = svgEl('g'); london.forEach(a => tmp.append(svgEl('path', { d: a.d }))); mainG.append(tmp);
   const lb = tmp.getBBox(); tmp.remove();
-  const IN = { x: 6, y: 40, w: 205, h: 185 };   // Irish Sea: no land underneath
+  const IN = { x: VX + 8, y: 40, w: 205, h: 185 };   // over the Irish Sea, west of England
   const k = Math.min((IN.w - 16) / lb.width, (IN.h - 34) / lb.height);
   const tx = IN.x + (IN.w - lb.width * k) / 2 - lb.x * k, ty = IN.y + 26 + (IN.h - 34 - lb.height * k) / 2 - lb.y * k;
   insetFrameG.append(
@@ -449,6 +454,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261028b"></script>
+<script src="shared/cgd-embed.js?v=20261028c"></script>
 </body>
 </html>
