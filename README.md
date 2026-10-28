@@ -85,9 +85,9 @@ Run in the built-in browser with Sofia Pro installed.
   - one control height per bank.
 - **Figure height:** 744px (England) to 749px (council selected) at 1024–1280px.
 - **Values** match `outputs/tables/wage_uplift_council.csv` for Suffolk, Hartlepool and Westminster at 9% and 15%, and the England totals.
-- **Resize contract:** the figure's height message reached `preview.html` and was applied, growing when a council was selected and shrinking when it was cleared. The messages were triggered by hand, because the test pane wasn't painting frames, so the automatic ResizeObserver trigger is still unverified.
+- **Resize contract:** on the live GitHub Pages review page, the automatic ResizeObserver resize works. The iframe went from 688px to 836px when Kent was selected and back to 688px on "Back to England". `interactive_view` fired once.
 
 **Still to do before publication:**
-- check the automatic resizing (grow and shrink) and the origin in the real cgdev.org parent;
+- check the same resize and origin behaviour in the real cgdev.org parent;
 - test fullscreen manually;
 - run the `qa/verify.mjs` gate, which needs Node and Playwright.
