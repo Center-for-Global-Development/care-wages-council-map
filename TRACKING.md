@@ -1,4 +1,8 @@
-# Event Tracking: care-wages-council-costs-map
+# Event Tracking
+
+Two figures, each with its own `interactive_name`.
+
+## Figure 2: care-wages-council-costs-map
 
 Events go to the parent page through `shared/cgd-embed.js` as `cgd_analytics` messages, with `interactive_name = care-wages-council-costs-map`.
 
@@ -18,3 +22,13 @@ Events go to the parent page through `shared/cgd-embed.js` as `cgd_analytics` me
 - Hover and tooltips.
 - Council identity: 151 values would exceed the cardinality budget, so only `selected` or `cleared` is sent.
 - Scroll and resize.
+
+## Figure 1: care-wages-budget-lines
+
+| Event | action_type | action_label | action_value | Fires on |
+|---|---|---|---|---|
+| `interactive_view` | – | – | – | First load (once) |
+| `interactive_engagement` | `filter` | `wage_benchmark` | `2.5%`, `4.5%`, `9%`, `12%` or `15%` | Benchmark button click |
+| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button (`cgd-embed.js` default rule) |
+
+Not tracked: hover, tooltips, focus, scroll or resize.

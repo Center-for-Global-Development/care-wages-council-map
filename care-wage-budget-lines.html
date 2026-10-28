@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en" data-cgd-interactive-name="care-wages-budget-lines">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>What higher care wages would cost councils, against other budgets</title>
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261028d">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261028d">
+<style>
+  /* Controls: the benchmark buttons and their note side by side on wide screens,
+     stacked on phones. The id selector deliberately outranks the shared .controls grid. */
+  #controls{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);align-items:end;gap:6px 14px}
+  #controls .control-group{min-width:0}
+  #controls .segmented{width:100%}
+  #controls .segmented button{flex:1 1 0;font-variant-numeric:tabular-nums}
+  .bench-note{color:var(--cgd-dark-gray);font-size:11px;line-height:1.3;padding-bottom:2px}
+  .bench-note b{display:block;color:var(--cgd-teal);font-weight:600}
+
+  .key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:10.2px;color:var(--cgd-dark-gray);align-items:center}
+  .key span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+  .key i{display:inline-block;width:14px;height:9px;border-radius:2px}
+  .panel-title{white-space:normal}
+
+  .bars{width:100%}
+  .bar-row{cursor:default}
+  .bar.budget{fill:#BFDEE0}
+  .bar.care{fill:var(--cgd-light-teal)}
+  .row-label{fill:var(--cgd-teal-black);font-size:11px}
+  .row-label.care,.bar-value.care{font-weight:700;fill:var(--cgd-light-teal)}
+  /* White halo so the dashed cost line never runs through a value label. */
+  .bar-value,.row-label{paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+  .cost-line{stroke:var(--cgd-light-teal);stroke-width:1.2;stroke-dasharray:4 3;vector-effect:non-scaling-stroke}
+  .bar-row:focus-visible .bar{stroke:var(--cgd-gold);stroke-width:2}
+
+  #notes{font-size:9.6px;line-height:1.3;margin-top:8px;padding-top:6px}
+  #notes a{color:var(--cgd-teal);text-decoration:underline;text-underline-offset:1px}
+
+  @media (max-width:640px){
+    #controls{grid-template-columns:minmax(0,1fr)}
+    .panel-header{grid-template-columns:minmax(0,1fr)}
+  }
+</style>
+</head>
+<body>
+<main id="vizRoot" class="viz-wrapper">
+  <div class="header-row">
+    <div class="title-block">
+      <h1 id="vizTitle">Higher care wages could cost councils as much as whole service budgets</h1>
+      <p class="viz-sub">Yearly cost to councils if care labour costs rose, versus other budget lines</p>
+    </div>
+    <button class="fullscreen-btn" id="fullscreenBtn" type="button" aria-label="View fullscreen" data-tip="View fullscreen">
+      <svg class="icon-expand" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="icon-compress" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M8 21v-5H3M16 21v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <div class="controls" id="controls" aria-label="Chart controls">
+    <div class="control-group">
+      <div class="control-label" id="benchLabel">Care labour costs higher by</div>
+      <div class="segmented" id="benchToggle" role="group" aria-labelledby="benchLabel"></div>
+    </div>
+    <div class="bench-note" id="benchNote"></div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title">£ a year, 2025/26, all 151 councils with adult social care duties</h2>
+      <div class="key" aria-hidden="true">
+        <span><i style="background:var(--cgd-light-teal)"></i>Extra cost of higher care wages</span>
+        <span><i style="background:#BFDEE0"></i>Council budget line</span>
+      </div>
+    </div>
+    <div class="chart-area"><div class="bars" id="bars"></div></div>
+  </section>
+  <div class="notes" id="notes"></div>
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+</main>
+
+<script src="shared/dom.js?v=20261028d"></script>
+<script src="shared/chart-core.js?v=20261028d"></script>
+<script src="data/budget-lines-data.js?v=20261028d"></script>
+<script>
+(() => {
+  'use strict';
+  const { element, svgEl } = window.CGDDom;
+  const { observeInlineSize, createSvg, measureText } = window.CGDCore;
+  const D = window.CARE_WAGE_BUDGETS;
+  const MEDIAN_PAY = 12.60;   // Skills for Care, care/support-worker median, March 2026
+  // Same benchmarks as the council map (care-wage-council-map.html) and the blog table.
+  const BENCHMARKS = [
+    { u: 2.5, short: '2.5%', label: 'NHS Band 2 rate', text: 'NHS Band 2 pay rate, 2026/27 (£12.92 an hour)' },
+    { u: 4.5, short: '4.5%', label: 'NHS Band 3 entry rate', text: 'NHS Band 3 entry rate, 2026/27 (£13.17 an hour)' },
+    { u: 9,   short: '9%',   label: 'MAC: £1 above minimum wage', text: 'Migration Advisory Committee (2022): £1 above the minimum wage (£13.71 an hour)' },
+    { u: 12,  short: '12%',  label: 'NHS Band 3 after two years', text: 'NHS Band 3 after two years, 2026/27 (£14.05 an hour)' },
+    { u: 15,  short: '15%',  label: 'Mid-point of evidence on pay needed', text: 'Middle of the 10–20% premium over the minimum wage that the evidence suggests may be needed to attract more UK workers' }
+  ];
+  // Axis held fixed across benchmarks so a moving bar means a changing cost.
+  const AXIS_MAX = 6000, TICKS = [0, 2000, 4000, 6000];
+
+  const nf1 = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const nf2 = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const nf0 = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
+  const fmtM = v => v >= 1000 ? '£' + nf2.format(v / 1000) + 'bn' : '£' + nf0.format(v) + 'm';
+  const fmtTick = v => v === 0 ? '£0' : '£' + nf0.format(v / 1000) + 'bn';
+  const fmtX = r => r >= 1 ? nf1.format(r) + ' times' : nf0.format(r * 100) + '%';
+
+  let state = Object.freeze({ u: 9 });
+  const setState = patch => { state = Object.freeze({ ...state, ...patch }); render(); };
+
+  const benchBox = document.getElementById('benchToggle');
+  BENCHMARKS.forEach(b => {
+    const btn = element('button', { text: b.short, attributes: { type: 'button', 'data-u': b.u, 'aria-pressed': 'false', 'data-tip': b.text } });
+    btn.addEventListener('click', () => { setState({ u: b.u }); window.CGDTracking?.engagement('filter', 'wage_benchmark', b.short); });
+    benchBox.append(btn);
+  });
+
+  function rows() {
+    const cost = D.costPer1 * state.u;
+    const all = D.lines.map(l => ({ ...l, care: false }));
+    all.push({ key: 'care', label: `Extra cost: care labour ${BENCHMARKS.find(b => b.u === state.u).short} higher`, value: cost, care: true });
+    return { cost, rows: all.sort((a, b) => b.value - a.value) };
+  }
+
+  /* ---- Tooltip ---- */
+  const tooltip = document.getElementById('tooltip');
+  function tipFor(r, cost) {
+    if (r.care) return [element('strong', { text: 'Extra cost to councils' }),
+      element('div', { text: `Care labour costs ${BENCHMARKS.find(b => b.u === state.u).short} higher: ${fmtM(cost)} a year` })];
+    const what = r.kind === 'grant' ? 'grant to councils' : 'net spending by councils';
+    return [element('strong', { text: r.label }),
+      element('div', { text: `${fmtM(r.value)} a year (${what}, ${D.baseYear})` }),
+      element('div', { text: `Extra cost at ${BENCHMARKS.find(b => b.u === state.u).short}: ${fmtM(cost)}, ${fmtX(cost / r.value)} this` })];
+  }
+  function showTip(r, cost, x, y) {
+    const host = document.fullscreenElement || document.getElementById('vizRoot');
+    if (tooltip.parentNode !== host) host.append(tooltip);
+    tooltip.replaceChildren(...tipFor(r, cost));
+    tooltip.hidden = false;
+    const pad = 8, box = tooltip.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+    let l = x + 14, t = y + 14;
+    if (l + box.width > vw - pad) l = x - box.width - 14;
+    if (t + box.height > vh - pad) t = y - box.height - 14;
+    tooltip.style.left = Math.max(pad, Math.min(l, vw - box.width - pad)) + 'px';
+    tooltip.style.top = Math.max(pad, Math.min(t, vh - box.height - pad)) + 'px';
+  }
+  const hideTip = () => { tooltip.hidden = true; };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTip(); });
+  document.addEventListener('scroll', hideTip, true);
+
+  /* ---- Chart ---- */
+  const wrap = document.getElementById('bars');
+  let lastWidth = 0;
+  function draw(width) {
+    lastWidth = width;
+    const { cost, rows: data } = rows();
+    const compact = width < 520;
+    const rowH = compact ? 38 : 27, barH = compact ? 12 : 15;
+    const labelW = compact ? 0 : Math.min(Math.max(...data.map(d => measureText(d.label, { fontSize: 11, fontWeight: d.care ? 700 : 400 }))) + 10, width * 0.42);
+    const m = { top: 6, right: compact ? 6 : 58, bottom: 24, left: compact ? 0 : labelW + 6 };
+    const height = m.top + m.bottom + data.length * rowH;
+    const plotL = m.left, plotR = width - m.right, plotW = Math.max(40, plotR - plotL);
+    const x = v => plotL + Math.min(v, AXIS_MAX) / AXIS_MAX * plotW;
+    const svg = createSvg(wrap, width, height, 'Bar chart: extra cost of higher care wages compared with council budget lines');
+    const y0 = height - m.bottom;
+
+    const axis = svgEl('g', { class: 'axis' });
+    TICKS.forEach((t, i) => {
+      const tx = x(t);
+      axis.append(svgEl('line', { class: 'grid-line', x1: tx, y1: m.top, x2: tx, y2: y0 }));
+      const lab = svgEl('text', { x: tx, y: y0 + 15, 'text-anchor': i === 0 ? 'start' : i === TICKS.length - 1 ? 'end' : 'middle', class: 'small-text' });
+      lab.textContent = fmtTick(t);
+      axis.append(lab);
+    });
+    svg.append(axis);
+    // Dashed reference line at the extra cost, drawn under the bars and labels.
+    svg.append(svgEl('line', { class: 'cost-line', x1: x(cost), y1: m.top, x2: x(cost), y2: y0 }));
+
+    data.forEach((d, i) => {
+      const top = m.top + i * rowH;
+      const barY = compact ? top + 17 : top + (rowH - barH) / 2;
+      const g = svgEl('g', { class: 'bar-row', tabindex: '0', role: 'listitem', 'aria-label': d.care ? `Extra cost to councils: ${fmtM(d.value)} a year` : `${d.label}: ${fmtM(d.value)} a year` });
+      const cls = d.care ? ' care' : '';
+      if (compact) {
+        const rl = svgEl('text', { class: 'row-label' + cls, x: plotL, y: top + 12 }); rl.textContent = d.label; g.append(rl);
+        const vl = svgEl('text', { class: 'bar-value' + cls, x: plotR, y: top + 12, 'text-anchor': 'end' }); vl.textContent = fmtM(d.value); g.append(vl);
+      } else {
+        const rl = svgEl('text', { class: 'row-label' + cls, x: plotL - 8, y: barY + barH / 2 + 4, 'text-anchor': 'end' }); rl.textContent = d.label; g.append(rl);
+        const vl = svgEl('text', { class: 'bar-value' + cls, x: x(d.value) + 5, y: barY + barH / 2 + 4 }); vl.textContent = fmtM(d.value); g.append(vl);
+      }
+      g.append(svgEl('rect', { class: 'bar ' + (d.care ? 'care' : 'budget'), x: plotL, y: barY, width: Math.max(1, x(d.value) - plotL), height: barH, rx: 2 }));
+      g.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') showTip(d, cost, e.clientX, e.clientY); });
+      g.addEventListener('pointermove', e => { if (e.pointerType !== 'touch' && !tooltip.hidden) showTip(d, cost, e.clientX, e.clientY); });
+      g.addEventListener('pointerleave', hideTip);
+      g.addEventListener('click', e => { const b = g.getBoundingClientRect(); showTip(d, cost, e.clientX || b.left + 20, e.clientY || b.top + 10); });
+      g.addEventListener('focus', () => { const b = g.getBoundingClientRect(); showTip(d, cost, b.left + 20, b.top + b.height / 2); });
+      g.addEventListener('blur', hideTip);
+      svg.append(g);
+    });
+  }
+
+  /* ---- Notes ---- */
+  const SOURCES = {
+    ascfr: ['DHSC Adult Social Care Finance Report 2025-26', 'https://www.gov.uk/government/statistics/adult-social-care-finance-report-england-2025-to-2026'],
+    ro: ['MHCLG revenue outturn', 'https://www.gov.uk/government/collections/local-authority-revenue-expenditure-and-financing'],
+    lgfs: ['local government finance settlement 2025-26', 'https://www.gov.uk/government/collections/final-local-government-finance-settlement-england-2025-to-2026'],
+    sfc: ['Skills for Care', 'https://www.skillsforcare.org.uk/Adult-Social-Care-Workforce-Data/workforceintelligence/resources/Reports/National/The-state-of-the-adult-social-care-sector-and-workforce-in-England-2026.pdf']
+  };
+  function renderNotes() {
+    const link = key => element('a', { text: SOURCES[key][0], attributes: { href: SOURCES[key][1], target: '_blank', rel: 'noopener' } });
+    document.getElementById('notes').replaceChildren(
+      'Source: CGD analysis of ', link('ascfr'), '; ', link('ro'), '; ', link('lgfs'), '. ',
+      'The increase applies to the labour share of councils\' spending on commissioned adult social care (60% of care home fees, 75% of community care, 70% of short-term care), passed on in full in fees. ',
+      'This should be interpreted as illustrative of the scale of the fiscal impacts of maintaining provision of care. ',
+      'Budget lines are totals for the 151 councils with adult social care duties: the Social Care Grant and the Market Sustainability and Improvement Fund are grants; the rest are 2025/26 net revenue spending (or 2024/25 where not yet reported). ',
+      'Changes to hourly pay apply the increase to the March 2026 median for care workers (per ', link('sfc'), ' data).');
+  }
+
+  function render() {
+    const bench = BENCHMARKS.find(b => b.u === state.u);
+    benchBox.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.u) === state.u)));
+    document.getElementById('benchNote').replaceChildren(
+      element('b', { text: bench.label }),
+      element('span', { text: `Median care pay £12.60 → £${nf2.format(MEDIAN_PAY * (1 + state.u / 100))} an hour` }));
+    hideTip();
+    draw(lastWidth || Math.max(280, Math.floor(wrap.getBoundingClientRect().width) || 600));
+  }
+
+  document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    const r = document.getElementById('vizRoot');
+    if (document.fullscreenElement === r) document.exitFullscreen(); else r.requestFullscreen?.();
+  });
+
+  renderNotes();
+  render();
+  observeInlineSize(wrap, w => draw(w));
+  window.CGD_READY = true;
+})();
+</script>
+<script src="shared/cgd-embed.js?v=20261028d"></script>
+</body>
+</html>

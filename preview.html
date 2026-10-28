@@ -9,21 +9,27 @@
   body{margin:0;padding:24px 16px;background:#F3F6F7;color:#1A272A;font-family:var(--font-sans)}
   .page{max-width:960px;margin:0 auto}
   p{font-size:14px;line-height:1.5;color:#394649}
-  iframe{display:block;width:100%;border:0;background:#fff;height:600px}
+  iframe{display:block;width:100%;border:0;background:#fff;height:600px;margin-bottom:28px}
+  h2{font-size:15px;color:#0B4C5B;margin:18px 0 8px}
   #log{font:12px/1.4 ui-monospace,Consolas,monospace;color:#394649;white-space:pre-wrap;margin-top:12px}
 </style>
 </head>
 <body>
 <div class="page">
-  <p>Review page: embeds the figure the way cgdev.org does and applies the height the figure reports. Not for publication.</p>
-  <iframe id="frame" src="care-wage-council-map.html" title="Map: what higher care wages would cost each English council"></iframe>
+  <p>Review page: embeds both figures the way cgdev.org does and applies the height each figure reports. Not for publication.</p>
+  <h2>Figure 1: council costs against other budget lines</h2>
+  <iframe class="fig" src="care-wage-budget-lines.html" title="Chart: what higher care wages would cost councils, against other budget lines"></iframe>
+  <h2>Figure 2: cost to each council</h2>
+  <iframe class="fig" src="care-wage-council-map.html" title="Map: what higher care wages would cost each English council"></iframe>
   <div id="log"></div>
 </div>
 <script>
-  const frame = document.getElementById('frame'), log = document.getElementById('log');
+  // One listener; each message is matched to the iframe that sent it.
+  const frames = [...document.querySelectorAll('iframe.fig')], log = document.getElementById('log');
   const lines = [];
   window.addEventListener('message', e => {
-    if (e.source !== frame.contentWindow || !e.data) return;
+    const frame = frames.find(f => f.contentWindow === e.source);
+    if (!frame || !e.data) return;
     if (e.data.type === 'cgd-iframe-resize' && Number.isFinite(e.data.height)) frame.style.height = e.data.height + 'px';
     lines.push(JSON.stringify(e.data));
     log.textContent = lines.slice(-8).join('\n');

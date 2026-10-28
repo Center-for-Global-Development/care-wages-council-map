@@ -1,4 +1,12 @@
-# What higher care wages would cost each council: interactive map
+# What higher care wages would cost councils: interactive figures
+
+Two figures for CGD's blog on care wages and council budgets:
+- **Figure 1, `care-wage-budget-lines.html`:** the England-wide extra cost compared with other council budget lines.
+- **Figure 2, `care-wage-council-map.html`:** the cost to each council, as a map.
+
+Both use the same five benchmark buttons and the same shared layer. The sections below describe the map first; Figure 1 has its own section further down.
+
+## Figure 2: council map
 
 An interactive companion to CGD's blog on care wages and council budgets. The reader picks how much higher care labour costs are, using one of five benchmarks (2.5, 4.5, 9, 12 or 15%). Each English council is then shaded either by the council tax rise needed to cover the extra yearly cost (the cost as a share of its council tax requirement, assuming the full cost is passed on through council tax) or by the cost as a share of its core spending power.
 
@@ -17,17 +25,20 @@ The figure is built for a cgdev.org iframe and follows the CGD interactive-visua
 
 ## Links (GitHub Pages)
 
-- Figure: https://center-for-global-development.github.io/care-wages-council-map/care-wage-council-map.html
-- Review page (figure in an iframe, as on cgdev.org): https://center-for-global-development.github.io/care-wages-council-map/preview.html
+- Figure 1 (budget lines): https://center-for-global-development.github.io/care-wages-council-map/care-wage-budget-lines.html
+- Figure 2 (map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-council-map.html
+- Review page (both figures in iframes, as on cgdev.org): https://center-for-global-development.github.io/care-wages-council-map/preview.html
 
 ## Files
 
 | File | What it is |
 |---|---|
-| `care-wage-council-map.html` | The figure (`data-cgd-interactive-name="care-wages-council-costs-map"`) |
+| `care-wage-budget-lines.html` | Figure 1 (`data-cgd-interactive-name="care-wages-budget-lines"`) |
+| `data/budget-lines-data.js` | Generated: the England cost per 1 percentage point and seven budget-line totals. Do not edit by hand. |
+| `care-wage-council-map.html` | Figure 2 (`data-cgd-interactive-name="care-wages-council-costs-map"`) |
 | `data/care-wage-map-data.js` | Generated data: per-council cost per 1 percentage point, denominators, budget lines and SVG boundary paths. Do not edit by hand. |
 | `shared/` | Unmodified copies of the CGD shared layer (`cgd-figure.css`, `cgd-responsive.css`, `chart-core.js`, `dom.js`, `cgd-embed.js`) |
-| `preview.html` | Review page that embeds the figure and applies the height it reports. Not for publication. |
+| `preview.html` | Review page that embeds both figures and applies the height each reports. Not for publication. |
 | `TRACKING.md` | Analytics events |
 
 ## Regenerating the data
@@ -75,6 +86,24 @@ python -m http.server 8766
 - **Measure labels:** the toggle reads "Show the cost as: Council tax rise | % of spending power". The council tax measure is labelled "council tax rise needed" throughout, and the footnote states the full pass-through assumption.
 - **Colour key:** the legend title sits on its own line, and the bin labels have a fixed width, so switching measure never reflows the figure.
 - **Keyboard route:** councils are not tab stops. The keyboard route is the "Find a council" select, and the side panel is the text alternative.
+
+## Figure 1: budget lines
+
+- **Question:** how big is the England-wide extra cost compared with things councils already spend money on?
+- **Default view:** 9%.
+- **Bars:** ranked bars of seven budget lines (light blue), plus one bar for the extra cost of higher care wages (teal), which moves into its rank as the benchmark changes. A dashed teal line at the extra cost runs down the chart, so every bar can be read against it.
+- **Hover, tap or keyboard focus:** shows the line's value and the extra cost as a multiple, or a percentage, of it.
+- **Data:** the same lines as the blog's static Figure 1 and `14_wage_uplift.py`. The Social Care Grant and the Market Sustainability and Improvement Fund are 2025/26 grants. The other five are 2025/26 net revenue spending by the 151 councils with adult social care duties, using 2024/25 where a council has not yet reported.
+- **Design decisions:**
+  - The x-axis is fixed at £0–6bn across benchmarks.
+  - On phones the labels and values sit above full-width bars.
+  - Value and row labels have a white halo, so the dashed line never runs through text.
+  - Same footnote style as the map (9.6px, linked sources).
+- **Verification (28 Oct 2026):**
+  - layout checks at 320, 390, 700 and 1280px, at 2.5%, 9% and 15%: SVG text `{clipped: [], overlaps: 0}`, controls clean, page overflow 0;
+  - height 527px on desktop;
+  - values match the PNG (Social Care Grant £5,923m, MSIF £1,050m, libraries £724m, cost at 9% £1,534m);
+  - the resize message is applied on `preview.html` (527px).
 
 ## Verification (28 Oct 2026)
 
