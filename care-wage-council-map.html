@@ -81,7 +81,7 @@
   <div class="header-row">
     <div class="title-block">
       <h1 id="vizTitle">Higher care wages would cost some councils far more than others</h1>
-      <p class="viz-sub">Yearly cost to councils if care labour costs rose, on 2025/26 spending</p>
+      <p class="viz-sub">Yearly cost to councils if care labour costs rose, versus 2025/26 spending</p>
     </div>
     <button class="fullscreen-btn" id="fullscreenBtn" type="button" aria-label="View fullscreen" data-tip="View fullscreen">
       <svg class="icon-expand" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -399,10 +399,12 @@
     const link = key => element('a', { text: SOURCES[key][0], attributes: { href: SOURCES[key][1], target: '_blank', rel: 'noopener' } });
     document.getElementById('notes').replaceChildren(
       'Source: CGD analysis of ', link('ascfr'), '; ', link('ctax'), ', ', link('csp'), ' and ', link('ro'), '; ', link('ons'), '. ',
-      'The increase applies to the labour share of councils\' spending on commissioned adult social care (60% of care home fees, 75% of community care, 70% of short-term care), passed on in full in fees: an illustration of scale, not the effect of any particular policy. ',
-      'Council tax is each council\'s own 2025/26 requirement, excluding other precepts; 5% is close to a year\'s maximum rise (4.99%), not a referendum test. ',
-      'Budget lines are 2025/26 net revenue spending (2024/25 where not yet reported). Hourly pay applies the increase to the March 2026 median for care workers (', link('sfc'), '). ',
-      'Nottinghamshire\'s 2025/26 care spending is estimated from 2024/25; Isles of Scilly counted with Cornwall; City of London not included.');
+      'The increase applies to the labour share of councils\' spending on commissioned adult social care (60% of care home fees, 75% of community care, 70% of short-term care), passed on in full in fees. ',
+      'This should be interpreted as illustrative of the scale of the fiscal impacts of maintaining provision of care. ',
+      'For council tax we show each council\'s own 2025/26 requirement, excluding other precepts; note that 5% exceeds the maximum annual rise (4.99%). ',
+      'Budget lines shown are 2025/26 net revenue spending (or 2024/25 where not yet reported). ',
+      'Changes to hourly pay apply the increase to the March 2026 median for care workers (per ', link('sfc'), ' data). ',
+      'Note that Nottinghamshire\'s 2025/26 care spending is estimated from 2024/25; Isles of Scilly counted with Cornwall; City of London not included.');
   }
 
   /* ---- Render: derive everything from state ---- */
