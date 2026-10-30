@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>What higher care wages would cost each council</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261028d">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261028d">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261030a">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261030a">
 <style>
   /* Wide: map on the left, controls and the detail panel stacked on the right, so
      the whole figure fits on one laptop screen. Phones: controls, map, detail.
@@ -33,7 +33,7 @@
   .scale-legend .bin span:last-child{min-width:3.1em;font-variant-numeric:tabular-nums}
 
   .map{position:relative;background:#E9F1F5;border:1px solid #EDF2F3;border-radius:10px;overflow:hidden}
-  .map svg{display:block;width:100%;height:auto;max-height:495px;touch-action:manipulation}
+  .map svg{display:block;width:100%;height:auto;max-height:480px;touch-action:manipulation}
   .context{fill:#D6DCDF;fill-opacity:.6;stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;pointer-events:none}
   .area{stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;fill:var(--area-fill,#DFE0E2);cursor:pointer}
   .area.nodata{fill:url(#ndHatch);cursor:default}
@@ -52,7 +52,7 @@
   .detail dd{margin:0;color:var(--cgd-teal);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
   .detail .block-title{margin:6px 0 0;padding-top:5px;border-top:1px solid var(--border);color:var(--cgd-teal);font-weight:700;font-size:12px}
   .detail table.lines{width:100%;border-collapse:collapse;margin-top:5px;font-size:11.6px;font-variant-numeric:tabular-nums}
-  .detail table.lines th,.detail table.lines td{padding:2px 0;text-align:right;font-weight:600;color:var(--cgd-teal);border-bottom:1px solid #E8EEF0}
+  .detail table.lines th,.detail table.lines td{padding:1.5px 0;text-align:right;font-weight:600;color:var(--cgd-teal);border-bottom:1px solid #E8EEF0}
   .detail table.lines th[scope="row"]{text-align:left;font-weight:400;color:var(--cgd-dark-gray);padding-right:6px}
   .detail table.lines thead th{color:var(--cgd-dark-gray);font-weight:600;font-size:10.5px;text-align:right;padding-bottom:4px}
   .detail table.lines thead th:first-child{text-align:left}
@@ -129,9 +129,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261028d"></script>
-<script src="shared/chart-core.js?v=20261028d"></script>
-<script src="data/care-wage-map-data.js?v=20261028d"></script>
+<script src="shared/dom.js?v=20261030a"></script>
+<script src="shared/chart-core.js?v=20261030a"></script>
+<script src="data/care-wage-map-data.js?v=20261030a"></script>
 <script>
 (() => {
   'use strict';
@@ -400,6 +400,9 @@
     );
   }
   const SOURCES = {
+    abs: ['ONS business survey data', 'https://www.ons.gov.uk/businessindustryandtrade/business/businessservices/datasets/uknonfinancialbusinesseconomyannualbusinesssurveysectionsas'],
+    cma: ['Competition and Markets Authority', 'https://assets.publishing.service.gov.uk/media/59b2bb0ae5274a5cfcda2d18/financial_analysis_working_paper.pdf'],
+    hca: ['Homecare Association', 'https://www.homecareassociation.org.uk/static/3a39caec-73af-428f-a261647e5a309c2f/Homecare-Association-Minimum-Price-for-Homecare-England-2025-2026.pdf'],
     ascfr: ['DHSC Adult Social Care Finance Report 2025-26', 'https://www.gov.uk/government/statistics/adult-social-care-finance-report-england-2025-to-2026'],
     ctax: ['MHCLG council tax levels 2025-26', 'https://www.gov.uk/government/statistics/council-tax-levels-set-by-local-authorities-in-england-2025-to-2026'],
     csp: ['core spending power', 'https://www.gov.uk/government/publications/explanatory-note-on-core-spending-power-final-local-government-finance-settlement-2025-to-2026/explanatory-note-on-core-spending-power-final-local-government-finance-settlement-2025-to-2026'],
@@ -412,6 +415,7 @@
     document.getElementById('notes').replaceChildren(
       'Source: CGD analysis of ', link('ascfr'), '; ', link('ctax'), ', ', link('csp'), ' and ', link('ro'), '; ', link('ons'), '. ',
       'The increase applies to the labour share of councils\' spending on commissioned adult social care (60% of care home fees, 75% of community care, 70% of short-term care), passed on in full in fees. ',
+      'These shares are in line with ', link('abs'), ' and cost models from the ', link('cma'), ' and the ', link('hca'), '. ',
       'This should be interpreted as illustrative of the scale of the fiscal impacts of maintaining provision of care. ',
       'The council tax rise needed assumes the full cost of the wage increase is simply passed on through council tax and no growth in the number of homes: it is the cost as a share of each council\'s own 2025/26 council tax requirement, excluding other precepts. Note that a 5% increase in council tax exceeds the maximum annual rise (4.99%). ',
       'Budget lines shown are 2025/26 net revenue spending (or 2024/25 where not yet reported). ',
@@ -454,6 +458,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261028d"></script>
+<script src="shared/cgd-embed.js?v=20261030a"></script>
 </body>
 </html>
