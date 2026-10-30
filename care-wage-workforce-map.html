@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en" data-cgd-interactive-name="care-wages-workforce-map">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>How much English care relies on non-EU workers</title>
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261030b">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261030b">
+<style>
+  /* Same layout as the council cost map: map left; controls and detail stacked right. */
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 318px;grid-template-areas:"map ctl" "map det";grid-template-rows:auto 1fr;gap:8px 12px;align-items:start}
+  #controls{grid-area:ctl;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:0}
+  #controls .control-group{min-width:0}
+  #controls .segmented{width:100%}
+  #controls .segmented button{flex:1 1 0}
+  .map-panel{grid-area:map;margin:0}
+  #detail{grid-area:det}
+
+  .scale-legend{display:flex;align-items:center;gap:4px 8px;font-size:10.2px;color:var(--cgd-dark-gray);flex-wrap:wrap;justify-content:flex-start}
+  .scale-legend .bin{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+  .scale-legend .chip{width:18px;height:10px;border:1px solid rgba(26,39,42,.08)}
+  .scale-legend .dot{display:inline-block;border-radius:50%;background:rgba(0,105,112,.55);border:1px solid #fff;box-shadow:0 0 0 1px rgba(0,105,112,.25)}
+  .scale-legend .bin span:last-child{min-width:3.1em;font-variant-numeric:tabular-nums}
+  .legend-title{color:var(--cgd-teal);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* Fixed height: the circle key (count view) is taller than the colour key, and the figure must not jump. */
+  .map-panel .panel-header{grid-template-columns:minmax(0,1fr);gap:4px;height:70px;align-content:start}
+
+  .map{position:relative;background:#E9F1F5;border:1px solid #EDF2F3;border-radius:10px;overflow:hidden}
+  .map svg{display:block;width:100%;height:auto;max-height:480px;touch-action:manipulation}
+  .context{fill:#D6DCDF;fill-opacity:.6;stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;pointer-events:none}
+  .area{stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;fill:var(--area-fill,#DFE0E2);cursor:pointer}
+  .area.nodata{fill:url(#ndHatch);cursor:default}
+  .bubble{fill:#006970;fill-opacity:.55;stroke:#fff;stroke-width:.8;vector-effect:non-scaling-stroke;cursor:pointer}
+  .bubble.selected{stroke:var(--cgd-gold);stroke-width:2.4;fill-opacity:.75}
+  .outline{fill:none;pointer-events:none;vector-effect:non-scaling-stroke}
+  .outline.hover{stroke:var(--cgd-teal-black);stroke-width:1.4}
+  .outline.selected{stroke:var(--cgd-gold);stroke-width:2.6}
+  .inset-frame{fill:#fff;fill-opacity:.92;stroke:#C9D6DA;stroke-width:1;vector-effect:non-scaling-stroke}
+  .inset-label{fill:var(--cgd-teal);font-size:12px;font-weight:700}
+
+  .detail{border:1px solid var(--border);border-radius:10px;background:var(--cgd-offwhite);padding:8px 11px;font-size:12px;line-height:1.38}
+  .detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .detail h2{margin:0;color:var(--cgd-teal);font-size:15px;line-height:1.2}
+  .detail .detail-sub{margin:2px 0 0;color:var(--cgd-dark-gray);font-size:11.2px}
+  .detail dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;margin:5px 0 0}
+  .detail dt{color:var(--cgd-dark-gray)}
+  .detail dd{margin:0;color:var(--cgd-teal);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+  .detail .block-title{margin:6px 0 0;padding-top:5px;border-top:1px solid var(--border);color:var(--cgd-teal);font-weight:700;font-size:12px}
+  .detail .hint{margin:9px 0 0;color:var(--cgd-dark-gray);font-size:11.2px}
+  .detail .clear-btn{flex:0 0 auto;border:1px solid var(--border);background:#fff;color:var(--cgd-teal);border-radius:8px;font:inherit;font-size:11px;font-weight:600;padding:4px 8px;min-height:26px;cursor:pointer}
+  .detail .clear-btn:hover,.detail .clear-btn:focus-visible{border-color:var(--cgd-teal-gray);outline:none;box-shadow:0 0 0 3px rgba(11,76,91,.10)}
+
+  #notes{font-size:9.6px;line-height:1.3;margin-top:8px;padding-top:6px}
+  #notes a{color:var(--cgd-teal);text-decoration:underline;text-underline-offset:1px}
+
+  @media (max-width:760px){
+    .layout{grid-template-columns:minmax(0,1fr) 280px}
+    #viewToggle button{font-size:12px !important;padding-inline:5px !important;white-space:nowrap}
+  }
+  @media (max-width:600px){
+    .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"ctl" "map" "det"}
+    #controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:520px){
+    #controls{grid-template-columns:minmax(0,1fr)}
+  }
+  .cgd-mobile-embed #controls .segmented{min-height:37px}
+</style>
+</head>
+<body>
+<main id="vizRoot" class="viz-wrapper">
+  <div class="header-row">
+    <div class="title-block">
+      <h1 id="vizTitle">English care relies heavily on non-EU workers, especially in the South and East</h1>
+      <p class="viz-sub">Care worker posts in independent providers held by non-EU nationals, 2025/26</p>
+    </div>
+    <button class="fullscreen-btn" id="fullscreenBtn" type="button" aria-label="View fullscreen" data-tip="View fullscreen">
+      <svg class="icon-expand" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="icon-compress" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M8 21v-5H3M16 21v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <div class="layout">
+    <div class="controls" id="controls" aria-label="Map controls">
+      <div class="control-group">
+        <div class="control-label">Show</div>
+        <div class="segmented" id="viewToggle" role="group" aria-label="Show share or number">
+          <button type="button" data-view="share" aria-pressed="true" data-tip="Non-EU nationals as a share of each council's independent-sector care worker posts">Share of posts</button>
+          <button type="button" data-view="count" aria-pressed="false" data-tip="Estimated number of care worker posts held by non-EU nationals (circles sized by number)">Number of posts</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <label for="councilSelect">Find a council</label>
+        <select id="councilSelect" class="plain-select"></select>
+      </div>
+    </div>
+    <section class="panel map-panel">
+      <div class="panel-header">
+        <div class="legend-title" id="legendTitle"></div>
+        <div class="scale-legend" id="scaleLegend"></div>
+      </div>
+      <div class="chart-area"><div class="map" id="map"></div></div>
+    </section>
+    <aside class="detail" id="detail" aria-label="Selected council"></aside>
+  </div>
+  <div class="notes" id="notes"></div>
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+</main>
+
+<script src="shared/dom.js?v=20261030b"></script>
+<script src="shared/chart-core.js?v=20261030b"></script>
+<script src="data/care-wage-map-data.js?v=20261030b"></script>
+<script src="data/workforce-data.js?v=20261030b"></script>
+<script>
+(() => {
+  'use strict';
+  const { element, svgEl } = window.CGDDom;
+  const G = window.CARE_WAGE_MAP;        // geometry, plus each council's cost per point and council tax
+  const W = window.CARE_WORKFORCE;       // Skills for Care workforce figures
+  const SEQ = ['#BFDEE0', '#6FBACB', '#2D99B5', '#006970', '#0B4C5B', '#1A272A'];
+  const BINS = [0.1, 0.2, 0.3, 0.4, 0.5];
+  const R_PER_ROOT = 0.22;               // circle radius (viewBox units) per square root of posts
+  const REF_U = 9;                       // benchmark used to link to the cost map (MAC: £1 above minimum wage)
+
+  const byGss = new Map(W.councils.map(c => [c.gss, c]));
+  const costBy = new Map(G.councils.map(c => [c.gss, c]));
+  const nf0 = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
+  const nf1 = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const pct = v => v == null ? 'N/A' : nf0.format(v * 100) + '%';
+  const pct1 = v => v == null ? 'N/A' : nf1.format(v * 100) + '%';
+  const about = n => 'about ' + nf0.format(n >= 10000 ? Math.round(n / 1000) * 1000 : n >= 1000 ? Math.round(n / 50) * 50 : Math.round(n / 10) * 10);
+  const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+  const ctRise = g => { const c = costBy.get(g); return c && c.ct ? c.per1 * REF_U / c.ct : null; };
+  const binOf = v => { let i = 0; while (i < BINS.length && v >= BINS[i]) i++; return i; };
+  const regions = (() => {
+    const m = new Map();
+    W.councils.forEach(c => { const r = m.get(c.region) || { posts: 0, noneu: 0 }; r.posts += c.posts; r.noneu += c.noneu; m.set(c.region, r); });
+    return new Map([...m].map(([k, v]) => [k, v.noneu / v.posts]));
+  })();
+  const byShare = [...W.councils].sort((a, b) => b.share - a.share);
+
+  let state = Object.freeze({ view: 'share', selected: null });
+  const setState = patch => { state = Object.freeze({ ...state, ...patch }); render(); };
+
+  /* ---- Controls ---- */
+  document.getElementById('viewToggle').addEventListener('click', e => {
+    const b = e.target.closest('button[data-view]'); if (!b) return;
+    setState({ view: b.dataset.view });
+    window.CGDTracking?.engagement('view_control', 'workforce_view', b.dataset.view);
+  });
+  const select = document.getElementById('councilSelect');
+  select.append(element('option', { text: 'All councils', attributes: { value: '' } }));
+  [...W.councils].sort((a, b) => a.name.localeCompare(b.name)).forEach(c => select.append(element('option', { text: c.name, attributes: { value: c.gss } })));
+  select.addEventListener('change', () => {
+    setState({ selected: select.value || null });
+    window.CGDTracking?.engagement('filter', 'council_select', select.value ? 'selected' : 'cleared');
+  });
+
+  /* ---- Map ---- */
+  const mapEl = document.getElementById('map');
+  const [VX, VY, VW, VH] = G.viewBox;
+  const svg = svgEl('svg', { viewBox: `${VX} ${VY} ${VW} ${VH}`, role: 'img', 'aria-labelledby': 'vizTitle', 'aria-describedby': 'detail' });
+  const defs = svgEl('defs');
+  const pat = svgEl('pattern', { id: 'ndHatch', width: 5, height: 5, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' });
+  pat.append(svgEl('rect', { width: 5, height: 5, fill: '#EDEFF0' }), svgEl('line', { x1: 0, y1: 0, x2: 0, y2: 5, stroke: '#C3CBCE', 'stroke-width': 1.6 }));
+  defs.append(pat); svg.append(defs);
+  svg.addEventListener('click', e => { if (!e.target.closest('.area, .bubble')) { hideTip(); if (state.selected) setState({ selected: null }); } });
+  const contextG = svgEl('g', { 'aria-hidden': 'true' });
+  (G.context || []).forEach(c => contextG.append(svgEl('path', { d: c.d, class: 'context' })));
+  const mainG = svgEl('g'), insetFrameG = svgEl('g'), insetG = svgEl('g');
+  const bubbleMain = svgEl('g'), bubbleInset = svgEl('g');
+  const outlineHover = svgEl('g'), outlineSel = svgEl('g');
+  svg.append(contextG, mainG, insetFrameG, insetG, bubbleMain, bubbleInset, outlineHover, outlineSel);
+  mapEl.append(svg);
+
+  const paths = [];
+  function wire(node, area) {
+    node.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') { showTip(area, e); hoverOutline(area); } });
+    node.addEventListener('pointermove', e => { if (e.pointerType !== 'touch') placeTip(e.clientX, e.clientY); });
+    node.addEventListener('pointerleave', () => { hideTip(); outlineHover.replaceChildren(); });
+    node.addEventListener('click', e => {
+      if (!byGss.has(area.gss)) { showTip(area, e); return; }
+      const next = state.selected === area.gss ? null : area.gss;
+      setState({ selected: next });
+      if (e.pointerType === 'touch' || e.detail === 0) showTip(area, e);
+      window.CGDTracking?.engagement('detail_open', 'council_map_click', next ? 'selected' : 'cleared');
+    });
+  }
+  function addArea(area, parent, inset) {
+    const p = svgEl('path', { d: area.d, class: 'area' + (byGss.has(area.gss) ? '' : ' nodata') });
+    parent.append(p);
+    paths.push({ node: p, area, inset });
+    wire(p, area);
+  }
+  G.areas.forEach(a => addArea(a, mainG, false));
+
+  const london = G.areas.filter(a => a.london);
+  const tmp = svgEl('g'); london.forEach(a => tmp.append(svgEl('path', { d: a.d }))); mainG.append(tmp);
+  const lb = tmp.getBBox(); tmp.remove();
+  const IN = { x: VX + 8, y: 40, w: 205, h: 185 };   // same inset box as the cost map
+  const k = Math.min((IN.w - 16) / lb.width, (IN.h - 34) / lb.height);
+  const tx = IN.x + (IN.w - lb.width * k) / 2 - lb.x * k, ty = IN.y + 26 + (IN.h - 34 - lb.height * k) / 2 - lb.y * k;
+  insetFrameG.append(svgEl('rect', { class: 'inset-frame', x: IN.x, y: IN.y, width: IN.w, height: IN.h, rx: 6 }));
+  const lt = svgEl('text', { class: 'inset-label', x: IN.x + 9, y: IN.y + 18 }); lt.textContent = 'London'; insetFrameG.append(lt);
+  insetG.setAttribute('transform', `translate(${tx},${ty}) scale(${k})`);
+  london.forEach(a => addArea(a, insetG, true));
+
+  // Circles: drawn largest first so small ones stay clickable; London's go in the inset only.
+  const areaByGss = new Map(G.areas.filter(a => a.code === a.gss).map(a => [a.gss, a]));
+  const bubbles = new Map();
+  [...W.councils].sort((a, b) => b.noneu - a.noneu).forEach(c => {
+    const a = areaByGss.get(c.gss); if (!a || !c.xy) return;
+    let [x, y] = c.xy;
+    if (a.london) { x = x * k + tx; y = y * k + ty; }
+    const circ = svgEl('circle', { cx: x, cy: y, r: Math.max(1.5, Math.sqrt(c.noneu) * R_PER_ROOT), class: 'bubble' });
+    (a.london ? bubbleInset : bubbleMain).append(circ);
+    bubbles.set(c.gss, circ);
+    wire(circ, a);
+  });
+
+  function outlineFor(area, layer, cls) {
+    layer.replaceChildren();
+    paths.filter(p => p.area.gss === area.gss && (area.london ? true : !p.inset)).forEach(p => {
+      const o = svgEl('path', { d: p.area.d, class: 'outline ' + cls });
+      if (p.inset) o.setAttribute('transform', insetG.getAttribute('transform'));
+      layer.append(o);
+    });
+  }
+  const hoverOutline = area => outlineFor(area, outlineHover, 'hover');
+
+  /* ---- Tooltip ---- */
+  const tooltip = document.getElementById('tooltip');
+  let tipArea = null;
+  function tipContent(area) {
+    const c = byGss.get(area.gss);
+    if (!c) return [element('strong', { text: area.name }), element('div', { text: 'Not included in this analysis' })];
+    const title = area.code !== area.gss ? `${area.name} (counted with ${c.name})` : c.name;
+    const grid = element('div', { className: 'tooltip-grid' });
+    const row = (kk, v) => grid.append(element('span', { text: kk }), element('b', { text: v }));
+    row('Non-EU share of care worker posts', pct(c.share));
+    row('Posts held by non-EU nationals', about(c.noneu));
+    row('All care worker posts', about(c.posts));
+    row(`Non-EU share in ${W.baseYear}`, pct(c.share2021));
+    row(`Council tax rise needed if care labour costs rose ${REF_U}%`, pct1(ctRise(c.gss)));
+    return [element('strong', { text: title }), grid];
+  }
+  function placeTip(cx, cy) {
+    const pad = 8, box = tooltip.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+    let l = cx + 14, t = cy + 14;
+    if (l + box.width > vw - pad) l = cx - box.width - 14;
+    if (t + box.height > vh - pad) t = cy - box.height - 14;
+    tooltip.style.left = Math.max(pad, Math.min(l, vw - box.width - pad)) + 'px';
+    tooltip.style.top = Math.max(pad, Math.min(t, vh - box.height - pad)) + 'px';
+  }
+  function showTip(area, e) {
+    tipArea = area;
+    const host = document.fullscreenElement || document.getElementById('vizRoot');
+    if (tooltip.parentNode !== host) host.append(tooltip);
+    tooltip.replaceChildren(...tipContent(area));
+    tooltip.hidden = false;
+    let x = e?.clientX, y = e?.clientY;
+    if (!Number.isFinite(x) || (x === 0 && y === 0)) { const b = e.target.getBoundingClientRect(); x = b.left + b.width / 2; y = b.top + b.height / 2; }
+    placeTip(x, y);
+  }
+  function hideTip() { tooltip.hidden = true; tipArea = null; }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { hideTip(); outlineHover.replaceChildren(); } });
+  document.addEventListener('scroll', hideTip, true);
+
+  /* ---- Legend, detail, notes ---- */
+  function renderLegend() {
+    const el = document.getElementById('scaleLegend'), title = document.getElementById('legendTitle');
+    el.replaceChildren();
+    if (state.view === 'share') {
+      title.textContent = 'Non-EU share of care worker posts (%)';
+      ['<10', '10–20', '20–30', '30–40', '40–50', '50+'].forEach((lab, i) => {
+        const chip = element('span', { className: 'chip' }); chip.style.background = SEQ[i];
+        el.append(element('span', { className: 'bin' }, [chip, element('span', { text: lab })]));
+      });
+    } else {
+      title.textContent = 'Care worker posts held by non-EU nationals';
+      const px = mapEl.getBoundingClientRect().width / VW || 0.7;   // viewBox unit -> screen px
+      [1000, 5000, 10000].forEach(v => {
+        const d = Math.max(4, 2 * Math.sqrt(v) * R_PER_ROOT * px);
+        const dot = element('span', { className: 'dot' }); dot.style.width = dot.style.height = d.toFixed(1) + 'px';
+        el.append(element('span', { className: 'bin' }, [dot, element('span', { text: nf0.format(v) })]));
+      });
+    }
+    const nd = element('span', { className: 'chip' }); nd.style.background = 'repeating-linear-gradient(45deg,#EDEFF0,#EDEFF0 2px,#C3CBCE 2px,#C3CBCE 4px)';
+    el.append(element('span', { className: 'bin' }, [nd, element('span', { text: 'not included' })]));
+  }
+  function dl(rows) {
+    const list = element('dl');
+    rows.forEach(([kk, v]) => list.append(element('dt', { text: kk }), element('dd', { text: v })));
+    return list;
+  }
+  function renderDetail() {
+    const box = document.getElementById('detail'), N = W.national;
+    if (!state.selected) {
+      const regs = [...regions].sort((a, b) => a[1] - b[1]);
+      box.replaceChildren(
+        element('h2', { text: 'England' }),
+        element('p', { className: 'detail-sub', text: `Independent providers, care worker posts, ${W.year}` }),
+        dl([
+          ['Non-EU share of care worker posts', pct(N.share)],
+          ['Posts held by non-EU nationals', about(N.noneu)],
+          ['All care worker posts', about(N.posts)],
+          [`Non-EU share in ${W.baseYear}`, pct(N.share2021)],
+          ['Highest council', `${byShare[0].name}, ${pct(byShare[0].share)}`],
+          ['Lowest council', `${byShare[byShare.length - 1].name}, ${pct(byShare[byShare.length - 1].share)}`],
+          ['Regions', `${pct(regs[0][1])} (${regs[0][0]}) to ${pct(regs[regs.length - 1][1])} (${regs[regs.length - 1][0]})`]
+        ]),
+        element('p', { className: 'hint', text: 'Select a council on the map or from the list to see its figures.' })
+      );
+      return;
+    }
+    const c = byGss.get(state.selected);
+    const rank = byShare.findIndex(x => x.gss === c.gss) + 1;
+    const rises = W.councils.map(x => ctRise(x.gss)).filter(v => v != null).sort((a, b) => b - a);
+    const r = ctRise(c.gss), rRank = r == null ? null : rises.findIndex(v => v <= r + 1e-12) + 1;
+    const clear = element('button', { className: 'clear-btn', text: 'Back to England', attributes: { type: 'button' } });
+    clear.addEventListener('click', () => setState({ selected: null }));
+    box.replaceChildren(
+      element('div', { className: 'detail-head' }, [element('h2', { text: c.name }), clear]),
+      element('p', { className: 'detail-sub', text: `${c.type}, ${c.region}` }),
+      dl([
+        ['Non-EU share of care worker posts', pct(c.share)],
+        ['Rank by share', `${ordinal(rank)} highest of ${byShare.length}`],
+        ['Posts held by non-EU nationals', about(c.noneu)],
+        ['All care worker posts', about(c.posts)],
+        [`Non-EU share in ${W.baseYear}`, pct(c.share2021)],
+        [`${c.region} average`, pct(regions.get(c.region))]
+      ]),
+      element('p', { className: 'block-title', text: `If care labour costs rose ${REF_U}%` }),
+      dl([
+        ['Council tax rise needed', pct1(r)],
+        ['Rank by council tax rise', rRank ? `${ordinal(rRank)} highest of ${rises.length}` : 'N/A']
+      ])
+    );
+  }
+  const SOURCES = {
+    sfc_la: ['Skills for Care local area data 2025/26', 'https://www.skillsforcare.org.uk/Adult-Social-Care-Workforce-Data/workforceintelligence/resources/Our-data/Local-area-data-download-2025-26.xlsx'],
+    sfc: ['Skills for Care', 'https://www.skillsforcare.org.uk/Adult-Social-Care-Workforce-Data/workforceintelligence/resources/Reports/National/The-state-of-the-adult-social-care-sector-and-workforce-in-England-2026.pdf'],
+    costmap: ['council cost map', 'care-wage-council-map.html'],
+    ons: ['ONS boundaries (December 2024)', 'https://geoportal.statistics.gov.uk/datasets/ons::counties-and-unitary-authorities-december-2024-boundaries-uk-buc']
+  };
+  function renderNotes() {
+    const link = key => element('a', { text: SOURCES[key][0], attributes: { href: SOURCES[key][1], target: '_blank', rel: 'noopener' } });
+    document.getElementById('notes').replaceChildren(
+      'Source: CGD analysis of ', link('sfc_la'), '; ', link('ons'), '. ',
+      'Care worker job role in independent (non-council) providers. Posts held by non-EU nationals are estimated as filled posts multiplied by the non-EU share; both are rounded estimates. ',
+      'Nationality is a proxy for reliance on international recruitment: it includes people who have already settled, alongside the roughly 150,000 posts ', link('sfc'), ' estimates are filled by Health and Care Worker visa holders. ',
+      'The council tax rise needed is from the ', link('costmap'), ': the extra cost if care labour costs rose 9% (MAC: £1 above the minimum wage), as a share of the council\'s own 2025/26 council tax requirement. ',
+      'Isles of Scilly counted with Cornwall; City of London not included.');
+  }
+
+  /* ---- Render ---- */
+  function render() {
+    document.querySelectorAll('#viewToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
+    select.value = state.selected || '';
+    const share = state.view === 'share';
+    for (const p of paths) {
+      const c = byGss.get(p.area.gss); if (!c) continue;
+      p.node.style.setProperty('--area-fill', share ? SEQ[binOf(c.share)] : '#EEF2F3');
+    }
+    bubbleMain.style.display = bubbleInset.style.display = share ? 'none' : '';
+    bubbles.forEach((b, g) => b.classList.toggle('selected', g === state.selected));
+    if (state.selected) outlineFor(areaByGss.get(state.selected), outlineSel, 'selected');
+    else outlineSel.replaceChildren();
+    renderLegend();
+    renderDetail();
+    if (tipArea && !tooltip.hidden) tooltip.replaceChildren(...tipContent(tipArea));
+  }
+
+  document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    const r = document.getElementById('vizRoot');
+    if (document.fullscreenElement === r) document.exitFullscreen(); else r.requestFullscreen?.();
+  });
+  window.addEventListener('resize', () => { if (state.view === 'count') renderLegend(); });
+
+  renderNotes();
+  render();
+  window.CGD_READY = true;
+})();
+</script>
+<script src="shared/cgd-embed.js?v=20261030b"></script>
+</body>
+</html>

@@ -27,7 +27,8 @@ The figure is built for a cgdev.org iframe and follows the CGD interactive-visua
 
 - Figure 1 (budget lines): https://center-for-global-development.github.io/care-wages-council-map/care-wage-budget-lines.html
 - Figure 2 (map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-council-map.html
-- Review page (both figures in iframes, as on cgdev.org): https://center-for-global-development.github.io/care-wages-council-map/preview.html
+- Workforce map: https://center-for-global-development.github.io/care-wages-council-map/care-wage-workforce-map.html
+- Review page (all figures in iframes, as on cgdev.org): https://center-for-global-development.github.io/care-wages-council-map/preview.html
 
 ## Files
 
@@ -86,6 +87,27 @@ python -m http.server 8766
 - **Measure labels:** the toggle reads "Show the cost as: Council tax rise | % of spending power". The council tax measure is labelled "council tax rise needed" throughout, and the footnote states the full pass-through assumption.
 - **Colour key:** the legend title sits on its own line, and the bin labels have a fixed width, so switching measure never reflows the figure.
 - **Keyboard route:** councils are not tab stops. The keyboard route is the "Find a council" select, and the side panel is the text alternative.
+
+## Figure 1 (blog numbering): reliance on non-EU care workers
+
+`care-wage-workforce-map.html` (`data-cgd-interactive-name="care-wages-workforce-map"`): https://center-for-global-development.github.io/care-wages-council-map/care-wage-workforce-map.html
+
+- **Question:** how much does each council's independent care workforce rely on non-EU nationals?
+- **Default:** the share of care worker posts held by non-EU nationals (shading).
+- **Views:** a toggle switches to the number of such posts, shown as circles sized by count. Circles rather than shading, because shading raw counts would mainly show council size.
+- **Tooltip and side panel** for each council:
+  - the share, its rank and the regional average;
+  - estimated non-EU posts and all care worker posts;
+  - the 2021/22 share;
+  - the council tax rise needed if care labour costs rose 9%, linking to the cost map.
+- **Data** (`data/workforce-data.js`, written by `18_interactive_map_data.py`): Skills for Care local-area data 2025/26, independent sector, care worker job role.
+  - Non-EU posts = filled posts × non-EU share, rounded.
+  - Nationally: 38% (about 338,000 posts), up from 12% in 2021/22.
+  - Circle positions are each council's mainland centroid. London's circles sit in the inset.
+- **Verification (30 Oct 2026):**
+  - layout checks at 320, 390, 700 and 1280px clean in both views;
+  - 745px tall on desktop in both views and with any council selected (the legend header is fixed at 70px so switching views doesn't jump);
+  - screenshots were unavailable because the pane wasn't painting, so the layout was checked by measurement.
 
 ## Figure 1: budget lines
 

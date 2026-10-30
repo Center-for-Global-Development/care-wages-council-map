@@ -32,3 +32,13 @@ Events go to the parent page through `shared/cgd-embed.js` as `cgd_analytics` me
 | `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button (`cgd-embed.js` default rule) |
 
 Not tracked: hover, tooltips, focus, scroll or resize.
+
+## Workforce map: care-wages-workforce-map
+
+| Event | action_type | action_label | action_value | Fires on |
+|---|---|---|---|---|
+| `interactive_view` | – | – | – | First load (once) |
+| `interactive_engagement` | `view_control` | `workforce_view` | `share` or `count` | Show toggle |
+| `interactive_engagement` | `filter` | `council_select` | `selected` or `cleared` | "Find a council" select |
+| `interactive_engagement` | `detail_open` | `council_map_click` | `selected` or `cleared` | Click or tap on a council or circle |
+| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
