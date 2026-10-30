@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>How much English care relies on non-EU workers</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261030b">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261030b">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261030c">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261030c">
 <style>
   /* Same layout as the council cost map: map left; controls and detail stacked right. */
   .layout{display:grid;grid-template-columns:minmax(0,1fr) 318px;grid-template-areas:"map ctl" "map det";grid-template-rows:auto 1fr;gap:8px 12px;align-items:start}
@@ -107,30 +107,27 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261030b"></script>
-<script src="shared/chart-core.js?v=20261030b"></script>
-<script src="data/care-wage-map-data.js?v=20261030b"></script>
-<script src="data/workforce-data.js?v=20261030b"></script>
+<script src="shared/dom.js?v=20261030c"></script>
+<script src="shared/chart-core.js?v=20261030c"></script>
+<script src="data/care-wage-map-data.js?v=20261030c"></script>
+<script src="data/workforce-data.js?v=20261030c"></script>
 <script>
 (() => {
   'use strict';
   const { element, svgEl } = window.CGDDom;
-  const G = window.CARE_WAGE_MAP;        // geometry, plus each council's cost per point and council tax
+  const G = window.CARE_WAGE_MAP;        // geometry (shared with the council cost map)
   const W = window.CARE_WORKFORCE;       // Skills for Care workforce figures
   const SEQ = ['#BFDEE0', '#6FBACB', '#2D99B5', '#006970', '#0B4C5B', '#1A272A'];
   const BINS = [0.1, 0.2, 0.3, 0.4, 0.5];
   const R_PER_ROOT = 0.22;               // circle radius (viewBox units) per square root of posts
-  const REF_U = 9;                       // benchmark used to link to the cost map (MAC: £1 above minimum wage)
 
   const byGss = new Map(W.councils.map(c => [c.gss, c]));
-  const costBy = new Map(G.councils.map(c => [c.gss, c]));
   const nf0 = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
   const nf1 = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const pct = v => v == null ? 'N/A' : nf0.format(v * 100) + '%';
   const pct1 = v => v == null ? 'N/A' : nf1.format(v * 100) + '%';
   const about = n => 'about ' + nf0.format(n >= 10000 ? Math.round(n / 1000) * 1000 : n >= 1000 ? Math.round(n / 50) * 50 : Math.round(n / 10) * 10);
   const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
-  const ctRise = g => { const c = costBy.get(g); return c && c.ct ? c.per1 * REF_U / c.ct : null; };
   const binOf = v => { let i = 0; while (i < BINS.length && v >= BINS[i]) i++; return i; };
   const regions = (() => {
     const m = new Map();
@@ -241,7 +238,6 @@
     row('Posts held by non-EU nationals', about(c.noneu));
     row('All care worker posts', about(c.posts));
     row(`Non-EU share in ${W.baseYear}`, pct(c.share2021));
-    row(`Council tax rise needed if care labour costs rose ${REF_U}%`, pct1(ctRise(c.gss)));
     return [element('strong', { text: title }), grid];
   }
   function placeTip(cx, cy) {
@@ -315,8 +311,6 @@
     }
     const c = byGss.get(state.selected);
     const rank = byShare.findIndex(x => x.gss === c.gss) + 1;
-    const rises = W.councils.map(x => ctRise(x.gss)).filter(v => v != null).sort((a, b) => b - a);
-    const r = ctRise(c.gss), rRank = r == null ? null : rises.findIndex(v => v <= r + 1e-12) + 1;
     const clear = element('button', { className: 'clear-btn', text: 'Back to England', attributes: { type: 'button' } });
     clear.addEventListener('click', () => setState({ selected: null }));
     box.replaceChildren(
@@ -329,18 +323,12 @@
         ['All care worker posts', about(c.posts)],
         [`Non-EU share in ${W.baseYear}`, pct(c.share2021)],
         [`${c.region} average`, pct(regions.get(c.region))]
-      ]),
-      element('p', { className: 'block-title', text: `If care labour costs rose ${REF_U}%` }),
-      dl([
-        ['Council tax rise needed', pct1(r)],
-        ['Rank by council tax rise', rRank ? `${ordinal(rRank)} highest of ${rises.length}` : 'N/A']
       ])
     );
   }
   const SOURCES = {
     sfc_la: ['Skills for Care local area data 2025/26', 'https://www.skillsforcare.org.uk/Adult-Social-Care-Workforce-Data/workforceintelligence/resources/Our-data/Local-area-data-download-2025-26.xlsx'],
     sfc: ['Skills for Care', 'https://www.skillsforcare.org.uk/Adult-Social-Care-Workforce-Data/workforceintelligence/resources/Reports/National/The-state-of-the-adult-social-care-sector-and-workforce-in-England-2026.pdf'],
-    costmap: ['council cost map', 'care-wage-council-map.html'],
     ons: ['ONS boundaries (December 2024)', 'https://geoportal.statistics.gov.uk/datasets/ons::counties-and-unitary-authorities-december-2024-boundaries-uk-buc']
   };
   function renderNotes() {
@@ -349,7 +337,6 @@
       'Source: CGD analysis of ', link('sfc_la'), '; ', link('ons'), '. ',
       'Care worker job role in independent (non-council) providers. Posts held by non-EU nationals are estimated as filled posts multiplied by the non-EU share; both are rounded estimates. ',
       'Nationality is a proxy for reliance on international recruitment: it includes people who have already settled, alongside the roughly 150,000 posts ', link('sfc'), ' estimates are filled by Health and Care Worker visa holders. ',
-      'The council tax rise needed is from the ', link('costmap'), ': the extra cost if care labour costs rose 9% (MAC: £1 above the minimum wage), as a share of the council\'s own 2025/26 council tax requirement. ',
       'Isles of Scilly counted with Cornwall; City of London not included.');
   }
 
@@ -382,6 +369,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261030b"></script>
+<script src="shared/cgd-embed.js?v=20261030c"></script>
 </body>
 </html>

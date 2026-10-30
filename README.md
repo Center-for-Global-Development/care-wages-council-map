@@ -98,8 +98,8 @@ python -m http.server 8766
 - **Tooltip and side panel** for each council:
   - the share, its rank and the regional average;
   - estimated non-EU posts and all care worker posts;
-  - the 2021/22 share;
-  - the council tax rise needed if care labour costs rose 9%, linking to the cost map.
+  - the 2021/22 share.
+- **Workforce only:** the map deliberately carries no cost or council tax figures, which the blog introduces later.
 - **Data** (`data/workforce-data.js`, written by `18_interactive_map_data.py`): Skills for Care local-area data 2025/26, independent sector, care worker job role.
   - Non-EU posts = filled posts × non-EU share, rounded.
   - Nationally: 38% (about 338,000 posts), up from 12% in 2021/22.
