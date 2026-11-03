@@ -71,6 +71,11 @@ python -m http.server 8766
   - dwellings.
 - **Budget lines:** 2025/26 net revenue spending (revenue outturn), using 2024/25 where a council has not yet reported. Lines with zero or negative net spending show as "–". A council with none (Cumberland) shows a short message instead.
 - **Hourly pay:** £12.60 × (1 + increase), where £12.60 is Skills for Care's March 2026 median.
+- **How pay rises across councils** (same definitions as `14_wage_uplift.py`):
+  - *Uniform* (default): every council's care labour costs rise by the selected increase.
+  - *Pay floor*: a national floor of £12.60 × (1 + increase). Each council's rise is max(0, floor ÷ its median care worker pay − 1), using Skills for Care's 2025/26 council medians. At 9% this costs £1.18bn rather than £1.53bn, and 26 councils (not 51) would need more than a 4.99% council tax rise.
+  - *Market-led*: rise = increase × (0.5 + 0.5 × council non-EU share ÷ the labour-cost-weighted mean share), so the England total equals uniform but the rise is larger where reliance on non-EU workers is higher.
+  - When the variant isn't uniform, the side panel subtitle and the tooltip give the council's own rise.
 - **Projection:** Lambert azimuthal equal-area, centred on England.
 - **Context land:** Scotland, Wales and Northern Ireland are drawn in dim grey from ONS Countries (December 2024, BUC), so their borders match the council boundaries. Ireland, the Isle of Man and the French coast come from Natural Earth 1:50m (world-atlas 2.0.2). They are not interactive and are drawn at 60% opacity. The view is widened slightly on both sides (70 units west, 60 east), so England sits centred and the London inset sits over the Irish Sea.
 
@@ -87,6 +92,7 @@ python -m http.server 8766
 - **Measure labels:** the toggle reads "Show the cost as: Council tax rise | % of spending power". The council tax measure is labelled "council tax rise needed" throughout, and the footnote states the full pass-through assumption.
 - **Colour key:** the legend title sits on its own line, and the bin labels have a fixed width, so switching measure never reflows the figure.
 - **Keyboard route:** councils are not tab stops. The keyboard route is the "Find a council" select, and the side panel is the text alternative.
+- **Council finder placement:** on the cost map the "Find a council" select sits in the map header, beside the legend title, to make room for the variant toggle within one screen. Verified 3 Nov 2026: 750px for England and at most 759px with any council selected, across all variants and both measures at 1280px; layout checks at 320, 390 and 700px clean.
 
 ## Figure 1 (blog numbering): reliance on non-EU care workers
 
@@ -95,6 +101,7 @@ python -m http.server 8766
 - **Question:** how much does each council's independent care workforce rely on non-EU nationals?
 - **Default:** the share of care worker posts held by non-EU nationals (shading).
 - **Views:** a toggle switches to the number of such posts, shown as circles sized by count. Circles rather than shading, because shading raw counts would mainly show council size.
+- **Vacancies view:** shades councils by the care worker vacancy rate (bins <5, 5–7.5, 7.5–10, 10–12.5, 12.5–15 and 15+%), with a year switch for 2025/26 or 2021/22. Vacancies = rate × filled posts ÷ (1 − rate). England: 12.4% (about 116,000) in 2021/22, 7.2% (about 70,000) in 2025/26. 2021/22 rates are missing for four councils (hatched).
 - **Tooltip and side panel** for each council:
   - the share, its rank and the regional average;
   - estimated non-EU posts and all care worker posts;
