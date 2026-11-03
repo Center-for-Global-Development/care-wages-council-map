@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>What higher care wages would cost each council</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261030a">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261030a">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261103a">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261103a">
 <style>
   /* Wide: map on the left, controls and the detail panel stacked on the right, so
      the whole figure fits on one laptop screen. Phones: controls, map, detail.
@@ -17,7 +17,7 @@
   #controls .segmented button{flex:1 1 0}
   #benchToggle button{font-variant-numeric:tabular-nums}
   .bench-note{margin-top:3px;color:var(--cgd-dark-gray);font-size:11px;line-height:1.3}
-  .bench-note b{display:block;color:var(--cgd-teal);font-weight:600}
+  .bench-note b{color:var(--cgd-teal);font-weight:600}
   .map-panel{grid-area:map;margin:0}
   #detail{grid-area:det}
 
@@ -29,11 +29,16 @@
      a side-by-side header reflowed (and shifted the figure) when the measure changed. */
   .map-panel .panel-header{grid-template-columns:minmax(0,1fr);gap:4px}
   .map-panel .scale-legend{justify-content:flex-start}
+  /* "Find a council" sits beside the legend title, which keeps the figure on one screen. */
+  .legend-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+  .legend-row .legend-title{flex:1 1 auto;min-width:0}
+  .legend-row select{flex:0 0 200px;width:200px;min-height:30px;height:30px;padding-top:3px;padding-bottom:3px}
+  @media (max-width:600px){.legend-row{flex-wrap:wrap}.legend-row select{flex:1 1 100%;width:100%;height:auto}}
   /* Fixed-width bin labels so both measures' keys wrap identically. */
   .scale-legend .bin span:last-child{min-width:3.1em;font-variant-numeric:tabular-nums}
 
   .map{position:relative;background:#E9F1F5;border:1px solid #EDF2F3;border-radius:10px;overflow:hidden}
-  .map svg{display:block;width:100%;height:auto;max-height:480px;touch-action:manipulation}
+  .map svg{display:block;width:100%;height:auto;max-height:462px;touch-action:manipulation}
   .context{fill:#D6DCDF;fill-opacity:.6;stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;pointer-events:none}
   .area{stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;fill:var(--area-fill,#DFE0E2);cursor:pointer}
   .area.nodata{fill:url(#ndHatch);cursor:default}
@@ -50,9 +55,9 @@
   .detail dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;margin:5px 0 0}
   .detail dt{color:var(--cgd-dark-gray)}
   .detail dd{margin:0;color:var(--cgd-teal);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
-  .detail .block-title{margin:6px 0 0;padding-top:5px;border-top:1px solid var(--border);color:var(--cgd-teal);font-weight:700;font-size:12px}
+  .detail .block-title{margin:4px 0 0;padding-top:4px;border-top:1px solid var(--border);color:var(--cgd-teal);font-weight:700;font-size:12px}
   .detail table.lines{width:100%;border-collapse:collapse;margin-top:5px;font-size:11.6px;font-variant-numeric:tabular-nums}
-  .detail table.lines th,.detail table.lines td{padding:1.5px 0;text-align:right;font-weight:600;color:var(--cgd-teal);border-bottom:1px solid #E8EEF0}
+  .detail table.lines th,.detail table.lines td{padding:1px 0;text-align:right;font-weight:600;color:var(--cgd-teal);border-bottom:1px solid #E8EEF0}
   .detail table.lines th[scope="row"]{text-align:left;font-weight:400;color:var(--cgd-dark-gray);padding-right:6px}
   .detail table.lines thead th{color:var(--cgd-dark-gray);font-weight:600;font-size:10.5px;text-align:right;padding-bottom:4px}
   .detail table.lines thead th:first-child{text-align:left}
@@ -68,7 +73,7 @@
 
   @media (max-width:760px){
     .layout{grid-template-columns:minmax(0,1fr) 280px}
-    #measureToggle button{font-size:12px !important;padding-inline:5px !important;white-space:nowrap}
+    #measureToggle button,#variantToggle button{font-size:12px !important;padding-inline:5px !important;white-space:nowrap}
     .panel-header{grid-template-columns:minmax(0,1fr)}
     .scale-legend{justify-content:flex-start}
   }
@@ -112,13 +117,20 @@
         </div>
       </div>
       <div class="control-group">
-        <label for="councilSelect">Find a council</label>
-        <select id="councilSelect" class="plain-select"></select>
+        <div class="control-label">How pay rises across councils</div>
+        <div class="segmented" id="variantToggle" role="group" aria-label="How pay rises across councils">
+          <button type="button" data-variant="uniform" aria-pressed="true" data-tip="The same percentage rise in care labour costs everywhere">Uniform</button>
+          <button type="button" data-variant="floor" aria-pressed="false" data-tip="A national pay floor: each council's median care worker pay is lifted to £12.60 plus the selected increase. Councils already paying more face little or no rise">Pay floor</button>
+          <button type="button" data-variant="market" aria-pressed="false" data-tip="Pay rises most where councils rely most on non-EU care workers (half national, half in proportion to reliance). The England total is the same as uniform">Market-led</button>
+        </div>
       </div>
     </div>
     <section class="panel map-panel">
       <div class="panel-header">
-        <div class="legend-title" id="legendTitle"></div>
+        <div class="legend-row">
+          <div class="legend-title" id="legendTitle"></div>
+          <select id="councilSelect" class="plain-select" aria-label="Find a council"></select>
+        </div>
         <div class="scale-legend" id="scaleLegend"></div>
       </div>
       <div class="chart-area"><div class="map" id="map"></div></div>
@@ -129,9 +141,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261030a"></script>
-<script src="shared/chart-core.js?v=20261030a"></script>
-<script src="data/care-wage-map-data.js?v=20261030a"></script>
+<script src="shared/dom.js?v=20261103a"></script>
+<script src="shared/chart-core.js?v=20261103a"></script>
+<script src="data/care-wage-map-data.js?v=20261103a"></script>
 <script>
 (() => {
   'use strict';
@@ -168,11 +180,22 @@
   const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
   const fmtX = r => r == null ? 'N/A' : r < 0.1 ? '<0.1×' : nf1.format(r) + '×';
 
-  /* ---- Model: cost is linear in the uplift (scripts/14_wage_uplift.py) ---- */
+  /* ---- Model: cost is linear in the uplift (scripts/14_wage_uplift.py) ----
+     Variants (same definitions as 14_wage_uplift.py):
+       uniform - every council's care labour costs rise by u%;
+       floor   - median care worker pay lifted to £12.60 x (1 + u): rise = max(0, floor / pay - 1);
+       market  - u x [0.5 + 0.5 x share / weighted mean share], so the England total equals uniform. */
+  const S_BAR = D.councils.reduce((a, c) => a + c.per1 * c.share, 0) / D.councils.reduce((a, c) => a + c.per1, 0);
+  function uEff(c, u) {
+    if (state.variant === 'floor') return Math.max(0, MEDIAN_PAY * (1 + u / 100) / c.pay - 1) * 100;
+    if (state.variant === 'market') return u * (0.5 + 0.5 * c.share / S_BAR);
+    return u;
+  }
   function metrics(c, u) {
-    const cost = c.per1 * u;
+    const ue = uEff(c, u);
+    const cost = c.per1 * ue;
     return {
-      cost,
+      cost, ue,
       ct: c.ct ? 100 * cost / c.ct : null,
       csp: c.csp ? 100 * cost / c.csp : null,
       perDwelling: c.dwellings ? cost * 1e6 / c.dwellings : null
@@ -190,7 +213,7 @@
   }
   function england(u) {
     const sum = k => D.councils.reduce((a, c) => a + (c[k] || 0), 0);
-    const cost = sum('per1') * u;
+    const cost = D.councils.reduce((a, c) => a + metrics(c, u).cost, 0);
     const vals = D.councils.map(c => metrics(c, u).ct).filter(v => v != null).sort((a, b) => a - b);
     const mid = vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2;
     return {
@@ -202,7 +225,7 @@
   const binOf = (v, bins) => { if (v == null) return -1; let i = 0; while (i < bins.length && v >= bins[i]) i++; return i; };
 
   /* ---- State: one object; everything is derived from it ---- */
-  let state = { u: 9, measure: 'ct', selected: null };
+  let state = { u: 9, measure: 'ct', variant: 'uniform', selected: null };
   const setState = patch => { state = Object.freeze({ ...state, ...patch }); render(); };
 
   /* ---- Controls ---- */
@@ -212,13 +235,18 @@
     btn.addEventListener('click', () => { setState({ u: b.u }); window.CGDTracking?.engagement('filter', 'wage_benchmark', b.short); });
     benchBox.append(btn);
   });
+  document.getElementById('variantToggle').addEventListener('click', e => {
+    const b = e.target.closest('button[data-variant]'); if (!b) return;
+    setState({ variant: b.dataset.variant });
+    window.CGDTracking?.engagement('view_control', 'pay_variant', b.dataset.variant);
+  });
   document.getElementById('measureToggle').addEventListener('click', e => {
     const b = e.target.closest('button[data-measure]'); if (!b) return;
     setState({ measure: b.dataset.measure });
     window.CGDTracking?.engagement('view_control', 'compare_with', b.dataset.measure);
   });
   const select = document.getElementById('councilSelect');
-  select.append(element('option', { text: 'All councils', attributes: { value: '' } }));
+  select.append(element('option', { text: 'Find a council', attributes: { value: '' } }));
   [...D.councils].sort((a, b) => a.name.localeCompare(b.name)).forEach(c => select.append(element('option', { text: c.name, attributes: { value: c.gss } })));
   select.addEventListener('change', () => {
     setState({ selected: select.value || null });
@@ -296,12 +324,13 @@
     const title = area.code !== area.gss ? `${area.name} (counted with ${c.name})` : c.name;
     const grid = element('div', { className: 'tooltip-grid' });
     const row = (k, v) => grid.append(element('span', { text: k }), element('b', { text: v }));
+    if (state.variant !== 'uniform') row('Rise in care labour costs here', fmtPct(m.ue));
     row('Extra cost a year', fmtM(m.cost));
     row('Council tax rise needed', fmtPct(m.ct));
     row('Share of spending power', fmtPct(m.csp));
     row('Per dwelling', fmtGbp(m.perDwelling));
     if (lib != null) row('Compared with libraries', fmtX(m.cost / lib));
-    const out = [element('strong', { text: title }), element('div', { text: `${fmtUplift(state.u)} higher care labour costs` }), grid];
+    const out = [element('strong', { text: title }), element('div', { text: variantLine() }), grid];
     if (near) out.push(element('div', { text: `Closest budget line: ${near.label.toLowerCase()} (${fmtM(near.spend)} net)` }));
     return out;
   }
@@ -339,6 +368,12 @@
     });
     const nd = element('span', { className: 'chip' }); nd.style.background = 'repeating-linear-gradient(45deg,#EDEFF0,#EDEFF0 2px,#C3CBCE 2px,#C3CBCE 4px)';
     el.append(element('span', { className: 'bin' }, [nd, element('span', { text: 'not included' })]));
+  }
+  function variantLine() {
+    const f = '£' + nf2.format(MEDIAN_PAY * (1 + state.u / 100));
+    if (state.variant === 'floor') return `National pay floor of ${f} an hour`;
+    if (state.variant === 'market') return `Care labour costs ${fmtUplift(state.u)} higher on average, more where reliance on non-EU staff is high`;
+    return `${fmtUplift(state.u)} higher care labour costs`;
   }
   function dl(rows) {
     const list = element('dl');
@@ -386,7 +421,7 @@
     clear.addEventListener('click', () => setState({ selected: null }));
     box.replaceChildren(
       element('div', { className: 'detail-head' }, [element('h2', { text: c.name }), clear]),
-      element('p', { className: 'detail-sub', text: `${c.type}, ${c.region}` }),
+      element('p', { className: 'detail-sub', text: `${c.type}, ${c.region}` + (state.variant !== 'uniform' ? `; care labour costs up ${fmtPct(m.ue)} here` : '') }),
       dl([
         ['Extra cost a year', fmtM(m.cost)],
         ['Council tax rise needed', fmtPct(m.ct)],
@@ -420,6 +455,7 @@
       'The council tax rise needed assumes the full cost of the wage increase is simply passed on through council tax and no growth in the number of homes: it is the cost as a share of each council\'s own 2025/26 council tax requirement, excluding other precepts. Note that a 5% increase in council tax exceeds the maximum annual rise (4.99%). ',
       'Budget lines shown are 2025/26 net revenue spending (or 2024/25 where not yet reported). ',
       'Changes to hourly pay apply the increase to the March 2026 median for care workers (per ', link('sfc'), ' data). ',
+      'Pay floor lifts each council\'s median care worker pay (Skills for Care) to £12.60 plus the increase; market-led weights the increase by the council\'s non-EU share of care posts, with the same England total. ',
       'Note that Nottinghamshire\'s 2025/26 care spending is estimated from 2024/25; Isles of Scilly counted with Cornwall; City of London not included.');
   }
 
@@ -429,7 +465,8 @@
     const bench = BENCHMARKS.find(b => b.u === state.u);
     document.getElementById('benchNote').replaceChildren(
       element('b', { text: bench.label }),
-      element('span', { text: `Median care pay £12.60 → £${nf2.format(MEDIAN_PAY * (1 + state.u / 100))} an hour` }));
+      element('span', { text: ` (median pay £${nf2.format(MEDIAN_PAY * (1 + state.u / 100))})` }));
+    document.querySelectorAll('#variantToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.variant === state.variant)));
     benchBox.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.u) === state.u)));
     document.querySelectorAll('#measureToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.measure === state.measure)));
     select.value = state.selected || '';
@@ -458,6 +495,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261030a"></script>
+<script src="shared/cgd-embed.js?v=20261103a"></script>
 </body>
 </html>
