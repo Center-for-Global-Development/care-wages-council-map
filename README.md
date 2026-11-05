@@ -176,7 +176,7 @@ Run in the built-in browser with Sofia Pro installed.
 - **Controls:**
   - *Show by* quarter or year.
   - *Count*: all visas granted, or "expected to qualify", which applies the Home Office's indicative 146,000 of 196,000 (about three-quarters) to every period.
-- **Past and future:** quarters before the current calendar quarter are pale ("Already passed"), computed from the viewer's date, so the chart stays current. The year view stacks the passed and to-come parts of each year. The three totals at the top count from the current quarter.
+- **Past and future:** quarters before the current calendar quarter are pale (not labelled in the key, at the author's request; the "Now" line marks the boundary), computed from the viewer's date, so the chart stays current. The year view stacks the passed and to-come parts of each year. The three totals at the top count from the current quarter.
 - **Markers:** a "Now" line in the quarter view; a shaded 2028 band (in-country switching into care visas ends in July 2028; the first Fair Pay Agreement is due).
 - **Fixed axes:** 40,000 for quarters and 120,000 for years, held across the count toggle so switching shrinks the bars rather than rescaling.
 - **Limitations (in the notes):** excludes in-country switchers (the Home Office's 196,000 includes them); includes some who have since left; grant date stands in for entry date; reaching five years is not the same as leaving care.
