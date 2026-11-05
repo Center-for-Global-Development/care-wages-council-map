@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>When care workers recruited from abroad reach settlement</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261105a">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261105a">
+<title>When care workers on care visas reach settlement</title>
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261105b">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261105b">
 <style>
   /* Two toggles side by side on wide screens, stacked on phones. */
   #controls{display:grid;grid-template-columns:repeat(2,minmax(0,300px));align-items:end;gap:6px 14px}
@@ -25,8 +25,10 @@
   .panel-title{white-space:normal}
 
   .bars{width:100%}
-  .bar.future{fill:var(--cgd-light-teal)}
-  .bar.past{fill:#BFDEE0}
+  /* Colour = route; paler = already passed. */
+  .bar.abroad{fill:var(--cgd-light-teal)}
+  .bar.switch{fill:#6FBACB}
+  .bar.past{opacity:.35}
   .period:focus-visible .bar{stroke:var(--cgd-gold);stroke-width:2}
   .period .hit{fill:transparent}
   .bar-value{fill:var(--cgd-teal-black);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
@@ -51,8 +53,8 @@
 <main id="vizRoot" class="viz-wrapper">
   <div class="header-row">
     <div class="title-block">
-      <h1 id="vizTitle">Most care workers recruited from abroad reach five years' residence in 2027 and 2028</h1>
-      <p class="viz-sub">Care worker visas granted from abroad before May 2025, by when the holder reaches five years in the UK and can apply for settlement</p>
+      <h1 id="vizTitle">Most care workers recruited on care visas reach five years in the UK in 2027 and 2028</h1>
+      <p class="viz-sub">Care worker visas granted before May 2025, by when the holder reaches five years on the visa and can apply for settlement</p>
     </div>
     <button class="fullscreen-btn" id="fullscreenBtn" type="button" aria-label="View fullscreen" data-tip="View fullscreen">
       <svg class="icon-expand" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -71,7 +73,7 @@
     <div class="control-group">
       <div class="control-label" id="countLabel">Count</div>
       <div class="segmented" id="countToggle" role="group" aria-labelledby="countLabel">
-        <button type="button" data-count="all" aria-pressed="true" data-tip="Every care worker visa granted from abroad before the May 2025 White Paper">All visas granted</button>
+        <button type="button" data-count="all" aria-pressed="true" data-tip="Every care worker visa granted before the May 2025 White Paper, from abroad or by switching from a student visa in the UK">All visas granted</button>
         <button type="button" data-count="qualify" aria-pressed="false" data-tip="Scaled by the Home Office's indicative share expected to meet the five-year requirements (146,000 of 196,000, about three-quarters)">Expected to qualify</button>
       </div>
     </div>
@@ -83,8 +85,9 @@
     <div class="panel-header">
       <h2 class="panel-title" id="panelTitle"></h2>
       <div class="key" aria-hidden="true">
-        <span><i style="background:#BFDEE0"></i>Already passed</span>
-        <span><i style="background:var(--cgd-light-teal)"></i>Still to come</span>
+        <span><i style="background:var(--cgd-light-teal)"></i>Granted from abroad</span>
+        <span><i style="background:#6FBACB"></i>Switched from a student visa in the UK</span>
+        <span><i style="background:var(--cgd-light-teal);opacity:.35"></i>Paler: already passed</span>
       </div>
     </div>
     <div class="chart-area"><div class="bars" id="bars"></div></div>
@@ -93,9 +96,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261105a"></script>
-<script src="shared/chart-core.js?v=20261105a"></script>
-<script src="data/settlement-timing-data.js?v=20261105a"></script>
+<script src="shared/dom.js?v=20261105b"></script>
+<script src="shared/chart-core.js?v=20261105b"></script>
+<script src="data/settlement-timing-data.js?v=20261105b"></script>
 <script>
 (() => {
   'use strict';
@@ -104,8 +107,8 @@
   const T = window.CARE_SETTLEMENT_TIMING;
   const QUALIFY = T.hoQualify / T.hoDue;   // indicative share meeting the five-year requirements
   // Axis held fixed for each view, so switching the count shrinks the bars rather than rescaling.
-  const AXIS = { quarter: { max: 40000, ticks: [0, 10000, 20000, 30000, 40000] },
-                 year: { max: 120000, ticks: [0, 30000, 60000, 90000, 120000] } };
+  const AXIS = { quarter: { max: 45000, ticks: [0, 10000, 20000, 30000, 40000] },
+                 year: { max: 150000, ticks: [0, 50000, 100000, 150000] } };
 
   const nf0 = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
   const round = v => v >= 10000 ? Math.round(v / 1000) * 1000 : v >= 1000 ? Math.round(v / 100) * 100 : Math.round(v / 10) * 10;
@@ -133,34 +136,36 @@
     window.CGDTracking?.engagement('view_control', 'timing_count', b.dataset.count);
   });
 
-  /* Periods to draw: each has a past and a still-to-come part (a quarter is wholly one or the other). */
+  /* Periods to draw. Each holds four parts: route (abroad / switched) x timing (passed / to come);
+     a quarter is wholly passed or to come, a year can be both. */
   function periods() {
-    const k = scale();
-    if (state.period === 'quarter') {
-      return Q.map(r => ({ key: r.q, label: 'Q' + r.q.slice(-1), year: r.year, grants: [r.grant],
-                           past: r.i < NOW ? r.n * k : 0, future: r.i >= NOW ? r.n * k : 0 }));
-    }
-    const out = [];
+    const k = scale(), out = [];
     Q.forEach(r => {
-      let p = out.find(o => o.key === r.year);
-      if (!p) { p = { key: r.year, label: r.year, year: r.year, grants: [], past: 0, future: 0 }; out.push(p); }
+      const key = state.period === 'quarter' ? r.q : r.year;
+      let p = out.find(o => o.key === key);
+      if (!p) {
+        p = { key, label: state.period === 'quarter' ? 'Q' + r.q.slice(-1) : r.year, year: r.year, grants: [], ap: 0, af: 0, sp: 0, sf: 0 };
+        out.push(p);
+      }
       p.grants.push(r.grant);
-      if (r.i < NOW) p.past += r.n * k; else p.future += r.n * k;
+      if (r.i < NOW) { p.ap += r.n * k; p.sp += r.s * k; } else { p.af += r.n * k; p.sf += r.s * k; }
     });
+    out.forEach(p => { p.abroad = p.ap + p.af; p.switched = p.sp + p.sf; p.past = p.ap + p.sp; p.total = p.abroad + p.switched; });
     return out;
   }
 
   /* ---- Tooltip ---- */
   const tooltip = document.getElementById('tooltip');
   function tipFor(p) {
-    const tot = p.past + p.future, grid = element('div', { className: 'tooltip-grid' });
+    const grid = element('div', { className: 'tooltip-grid' });
     const row = (k, v) => grid.append(element('span', { text: k }), element('b', { text: v }));
-    const g = p.grants.length === 1 ? p.grants[0] : `${p.grants[0].slice(0, 4)}`;
-    row('Visas granted in', g);
-    row(state.count === 'qualify' ? 'Expected to qualify' : 'Visas', 'about ' + fmt(tot));
-    if (state.count === 'all') row('Expected to qualify', 'about ' + fmt(tot * QUALIFY));
-    if (p.past && p.future) row('Of which already passed', 'about ' + fmt(p.past));
-    return [element('strong', { text: state.period === 'quarter' ? `Reach five years in ${p.key}` : `Reach five years in ${p.key}` }), grid];
+    row('Visa granted in', p.grants.length === 1 ? p.grants[0] : p.grants[0].slice(0, 4));
+    row('Granted from abroad', 'about ' + fmt(p.abroad));
+    row('Switched from a student visa', 'about ' + fmt(p.switched));
+    row(state.count === 'qualify' ? 'Total expected to qualify' : 'Total', 'about ' + fmt(p.total));
+    if (state.count === 'all') row('Expected to qualify', 'about ' + fmt(p.total * QUALIFY));
+    if (p.past && p.past < p.total) row('Of which already passed', 'about ' + fmt(p.past));
+    return [element('strong', { text: `Reach five years in ${p.key}` }), grid];
   }
   function showTip(p, x, y) {
     const host = document.fullscreenElement || document.getElementById('vizRoot');
@@ -226,11 +231,17 @@
     }
 
     data.forEach((d, i) => {
-      const tot = d.past + d.future;
-      const g = svgEl('g', { class: 'period', tabindex: '0', role: 'listitem', 'aria-label': `Reach five years in ${d.key}: about ${fmt(tot)}` });
+      const tot = d.total;
+      const g = svgEl('g', { class: 'period', tabindex: '0', role: 'listitem',
+        'aria-label': `Reach five years in ${d.key}: about ${fmt(tot)} (${fmt(d.abroad)} from abroad, ${fmt(d.switched)} switched in the UK)` });
       g.append(svgEl('rect', { class: 'hit', x: m.left + i * step, y: m.top, width: step, height: plotH }));
-      if (d.past) g.append(svgEl('rect', { class: 'bar past', x: x(i), y: y(d.past), width: barW, height: y0 - y(d.past), rx: 1.5 }));
-      if (d.future) g.append(svgEl('rect', { class: 'bar future', x: x(i), y: y(tot), width: barW, height: y(d.past) - y(tot), rx: 1.5 }));
+      // Stack bottom-up: abroad passed, abroad to come, switched passed, switched to come.
+      let base = 0;
+      [['ap', 'abroad past'], ['af', 'abroad'], ['sp', 'switch past'], ['sf', 'switch']].forEach(([k, cls]) => {
+        if (!d[k]) return;
+        g.append(svgEl('rect', { class: 'bar ' + cls, x: x(i), y: y(base + d[k]), width: barW, height: y(base) - y(base + d[k]) }));
+        base += d[k];
+      });
       if (!quarter) {
         const v = svgEl('text', { class: 'bar-value', x: x(i) + barW / 2, y: y(tot) - 5, 'text-anchor': 'middle' });
         v.textContent = fmt(tot); g.append(v);
@@ -261,7 +272,7 @@
 
   /* ---- Totals ---- */
   function renderStats() {
-    const k = scale(), sum = f => Q.filter(f).reduce((a, r) => a + r.n, 0) * k;
+    const k = scale(), sum = f => Q.filter(f).reduce((a, r) => a + r.n + r.s, 0) * k;
     const y28 = 2028 * 4;
     const items = [[sum(r => r.i >= NOW && r.i < y28), 'From now to the end of 2027'],
                    [sum(r => r.i >= y28 && r.i < y28 + 4), 'During 2028'],
@@ -273,15 +284,16 @@
   /* ---- Notes ---- */
   const SOURCES = {
     ho: ['Home Office sponsored work visas by occupation (year ending June 2026)', 'https://www.gov.uk/government/statistical-data-sets/immigration-system-statistics-data-tables'],
+    mo: ['Migration Observatory', 'https://migrationobservatory.ox.ac.uk/resources/commentaries/international-students-entering-the-uk-labour-market/'],
     es: ['Earned Settlement consultation response', 'https://assets.publishing.service.gov.uk/media/6ae89fddf4a6b3f59cf37580/FINAL_VERSION_-_Earned_Settlement_-_Consultation_Response.pdf']
   };
   function renderNotes() {
     const link = key => element('a', { text: SOURCES[key][0], attributes: { href: SOURCES[key][1], target: '_blank', rel: 'noopener' } });
     document.getElementById('notes').replaceChildren(
-      'Source: CGD analysis of ', link('ho'), '; ', link('es'), ' (November 2026). ',
-      'Health and Care Worker visas granted from abroad to care workers (main applicants, caring personal services), placed five years after the quarter of grant. ',
-      'Only visas granted before the White Paper of 12 May 2025 are shown, since later entrants face a 10-year route; 2025 Q2 grants are split pro rata. ',
-      'The chart excludes people who switched into care visas within the UK and includes some who have since left the UK or the sector. ',
+      'Source: CGD analysis of ', link('ho'), '; Home Office FOI data published by the ', link('mo'), '; ', link('es'), ' (November 2026). ',
+      'Health and Care Worker visas granted from abroad to care workers (main applicants, caring personal services), and certificates of sponsorship used by people switching into care work from a student visa in the UK (FOI data to 2026 Q1), placed five years after the quarter of grant; time on a student visa does not count towards settlement. ',
+      'Only visas granted before the White Paper of 12 May 2025 are shown, since later entrants face a 10-year route; 2025 Q2 is split pro rata. ',
+      'The chart excludes switchers from the Graduate route and other in-country routes, and includes some who have since left the UK or the sector. ',
       'The Home Office expects about 196,000 care workers in all to be due to settle in 2026–30, about 146,000 of them meeting the requirements for the five-year route; "expected to qualify" applies that share to every quarter. ',
       'Reaching five years allows an application for settlement; it does not mean leaving care.');
   }
@@ -290,7 +302,7 @@
     document.querySelectorAll('#periodToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.period === state.period)));
     document.querySelectorAll('#countToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.count === state.count)));
     document.getElementById('panelTitle').textContent = state.count === 'qualify'
-      ? 'Care workers expected to qualify for settlement after five years' : 'Care worker visas granted from abroad';
+      ? 'Care workers expected to qualify for settlement after five years' : 'Care worker visas granted';
     renderStats();
     hideTip();
     draw(lastWidth || Math.max(280, Math.floor(wrap.getBoundingClientRect().width) || 600));
@@ -307,6 +319,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261105a"></script>
+<script src="shared/cgd-embed.js?v=20261105b"></script>
 </body>
 </html>

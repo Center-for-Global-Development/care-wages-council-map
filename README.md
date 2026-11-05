@@ -1,12 +1,13 @@
 # What higher care wages would cost councils: interactive figures
 
-Four figures for CGD's blog on care wages and council budgets (numbered as in the blog):
+Five figures for CGD's blog on care wages and council budgets (numbered as in the blog):
 - **Figure 1, `care-wage-workforce-map.html`:** how much each council's care workforce relies on non-EU workers, with vacancy rates.
-- **Figure 2, `care-wage-budget-lines.html`:** the England-wide extra cost of higher care wages compared with other council budget lines.
-- **Figure 3, `care-wage-council-map.html`:** the cost to each council, as a map.
-- **Figure 4, `care-wage-settlement-timing.html`:** when the care workers recruited from abroad reach five years in the UK and can apply for settlement.
+- **Figure 2, `care-wage-pay-premium.html`:** care pay above the minimum wage, the vacancy rate and care visas, 2018/19 to 2025/26.
+- **Figure 3, `care-wage-budget-lines.html`:** the England-wide extra cost of higher care wages compared with other council budget lines.
+- **Figure 4, `care-wage-council-map.html`:** the cost to each council, as a map.
+- **Figure 5, `care-wage-settlement-timing.html`:** when care workers on care visas reach five years and can apply for settlement.
 
-All use the same shared layer; Figures 2 and 3 share the five benchmark buttons. The sections below describe the cost map first; the others have their own sections further down (older section headings use the earlier numbering: "Figure 1: budget lines" is now Figure 2).
+All use the same shared layer; Figures 3 and 4 share the five benchmark buttons. The sections below describe the cost map first; the others have their own sections further down. Some older section headings use earlier numbering: "Figure 1: budget lines" is now Figure 3, "Figure 2: council map" is Figure 4, and "Figure 4: when care workers ... reach settlement" is Figure 5.
 
 ## Figure 2: council map
 
@@ -28,9 +29,10 @@ The figure is built for a cgdev.org iframe and follows the CGD interactive-visua
 ## Links (GitHub Pages)
 
 - Figure 1 (workforce map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-workforce-map.html
-- Figure 2 (budget lines): https://center-for-global-development.github.io/care-wages-council-map/care-wage-budget-lines.html
-- Figure 3 (cost map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-council-map.html
-- Figure 4 (settlement timing): https://center-for-global-development.github.io/care-wages-council-map/care-wage-settlement-timing.html
+- Figure 2 (pay, vacancies and visas): https://center-for-global-development.github.io/care-wages-council-map/care-wage-pay-premium.html
+- Figure 3 (budget lines): https://center-for-global-development.github.io/care-wages-council-map/care-wage-budget-lines.html
+- Figure 4 (cost map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-council-map.html
+- Figure 5 (settlement timing): https://center-for-global-development.github.io/care-wages-council-map/care-wage-settlement-timing.html
 - Review page (all figures in iframes, as on cgdev.org): https://center-for-global-development.github.io/care-wages-council-map/preview.html
 
 ## Files
@@ -39,14 +41,16 @@ The figure is built for a cgdev.org iframe and follows the CGD interactive-visua
 |---|---|
 | `care-wage-workforce-map.html` | Figure 1 (`data-cgd-interactive-name="care-wages-workforce-map"`) |
 | `data/workforce-data.js` | Generated: Skills for Care workforce figures by council. Do not edit by hand. |
-| `care-wage-budget-lines.html` | Figure 2 (`data-cgd-interactive-name="care-wages-budget-lines"`) |
+| `care-wage-pay-premium.html` | Figure 2 (`data-cgd-interactive-name="care-wages-pay-premium"`) |
+| `data/pay-premium-data.js` | Generated: Skills for Care pay and vacancy series, and care visas by financial year. Do not edit by hand. |
+| `care-wage-budget-lines.html` | Figure 3 (`data-cgd-interactive-name="care-wages-budget-lines"`) |
 | `data/budget-lines-data.js` | Generated: the England cost per 1 percentage point and seven budget-line totals. Do not edit by hand. |
-| `care-wage-council-map.html` | Figure 3 (`data-cgd-interactive-name="care-wages-council-costs-map"`) |
+| `care-wage-council-map.html` | Figure 4 (`data-cgd-interactive-name="care-wages-council-costs-map"`) |
 | `data/care-wage-map-data.js` | Generated data: per-council cost per 1 percentage point, denominators, budget lines and SVG boundary paths. Do not edit by hand. |
 | `shared/` | Unmodified copies of the CGD shared layer (`cgd-figure.css`, `cgd-responsive.css`, `chart-core.js`, `dom.js`, `cgd-embed.js`) |
-| `care-wage-settlement-timing.html` | Figure 4 (`data-cgd-interactive-name="care-wages-settlement-timing"`) |
-| `data/settlement-timing-data.js` | Generated: care worker visas granted from abroad, by the quarter holders reach five years. Do not edit by hand. |
-| `preview.html` | Review page that embeds all four figures and applies the height each reports. Not for publication. |
+| `care-wage-settlement-timing.html` | Figure 5 (`data-cgd-interactive-name="care-wages-settlement-timing"`) |
+| `data/settlement-timing-data.js` | Generated: care worker visas granted from abroad and in-country switchers, by the quarter holders reach five years. Do not edit by hand. |
+| `preview.html` | Review page that embeds all five figures and applies the height each reports. Not for publication. |
 | `TRACKING.md` | Analytics events |
 
 ## Regenerating the data
@@ -164,7 +168,8 @@ Run in the built-in browser with Sofia Pro installed.
 
 `care-wage-settlement-timing.html` (`data-cgd-interactive-name="care-wages-settlement-timing"`)
 
-- **Question:** when do the care workers recruited from abroad in 2021–25 reach five years in the UK, the point at which they can apply for settlement and are free to leave the sector?
+- **Now Figure 5 in the blog.** Updated 5 Nov 2026 to stack in-country switchers (see "In-country switchers" below).
+- **Question:** when do the care workers recruited on care visas in 2021–25 reach five years on the visa, the point at which they can apply for settlement and are free to leave the sector?
 - **Data** (`data/settlement-timing-data.js`, written by `18_interactive_map_data.py`; run `python scripts/18_interactive_map_data.py --timing-only` to refresh just this file): Home Office sponsored work visas by occupation (SOC 2020), year ending June 2026. Health and Care Worker entry clearance grants to main applicants in caring personal services (SOC 613), each placed five years after the quarter of grant.
   - Only grants before the 12 May 2025 White Paper are kept: later entrants face a 10-year route under the 2 Nov 2026 decision. 2025 Q2 is split pro rata by days (41 of 91).
   - About 160,000 in all: 39,000 from now to end 2027, 108,000 during 2028 (peak 2028 Q3, 34,500), 12,000 from 2029.
@@ -176,4 +181,26 @@ Run in the built-in browser with Sofia Pro installed.
 - **Fixed axes:** 40,000 for quarters and 120,000 for years, held across the count toggle so switching shrinks the bars rather than rescaling.
 - **Limitations (in the notes):** excludes in-country switchers (the Home Office's 196,000 includes them); includes some who have since left; grant date stands in for entry date; reaching five years is not the same as leaving care.
 - **Verification (5 Nov 2026):** 700px tall at 1280px in all four views; layout checks at 320, 390, 700 and 1280px clean; no console errors.
+
+### In-country switchers (Figures 2 and 5)
+
+- **Source:** Home Office FOI 03109, published by the Migration Observatory as the underlying data for "International students entering the UK labour market" (2026). It gives certificates of sponsorship used for care worker and senior care worker roles, by quarter (2021 Q1 to 2026 Q1), split into out-of-country applications and in-country switchers from the Sponsored Study route.
+- **Cross-check:** the FOI out-of-country series matches the published entry-clearance grants closely (for example 34,301 vs 34,513 in 2023 Q3).
+- **Totals:** about 52,100 study-to-care switches in all; 50,400 before the White Paper cut-off. With the 160,000 granted from abroad, that makes about 210,000 reaching five years: about 55,000 from now to end 2027, 132,000 during 2028 and 23,000 from 2029. The Home Office's 196,000 due to settle in 2026–30 is net of departures and includes other switchers.
+- **Settlement clock:** time on a student visa doesn't count towards Skilled Worker settlement, so switchers are placed five years after the switch. The 2 Nov 2026 decision covers care workers who "entered, or switched into" the route before May 2025.
+- **Not included:** switchers from the Graduate route (the Migration Observatory puts these at around 26,000 in the year to June 2023 alone, from a separate FOI), dependants and other in-country routes. Both figures therefore understate in-country recruitment.
+
+## Figure 2: care pay, vacancies and care visas
+
+`care-wage-pay-premium.html` (`data-cgd-interactive-name="care-wages-pay-premium"`)
+
+- **Question:** did care pay respond to the 2021/22 shortage, and what happened to it as international recruits arrived?
+- **Three panels on a shared year axis:**
+  - median care worker pay above the National Living Wage in force each March (toggle: per cent or pence an hour);
+  - the vacancy rate, all roles;
+  - care visas by financial year, stacked: granted from abroad and switched from a student visa in the UK.
+- **Data** (`data/pay-premium-data.js`, written by `18_interactive_map_data.py`): Skills for Care, The state of the adult social care sector and workforce in England 2026 (chart 80, p.123: median pay and NLW; chart 32, p.66: vacancy rate), independent sector; visa series as for Figure 5. Visa data start in 2021, so 2018/19 to 2020/21 show "no data".
+- **Interaction:** hovering, tapping or focusing a year shows every value for that year in one tooltip.
+- **Caveats (in the notes):** large NLW rises squeeze any lead over it; the 2021/22 vacancy spike also reflected the vaccine requirement for care home staff and the post-pandemic labour market.
+- **Verification (5 Nov 2026):** 743px tall at 1280px under both units; layout checks at 320, 390, 700 and 1280px clean; no console errors.
 

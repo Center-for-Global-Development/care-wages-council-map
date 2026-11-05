@@ -45,13 +45,23 @@ Not tracked: hover, tooltips, focus, scroll or resize.
 | `interactive_engagement` | `detail_open` | `council_map_click` | `selected` or `cleared` | Click or tap on a council or circle |
 | `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
 
-## Figure 4: care-wages-settlement-timing
+## Figure 5 (blog numbering): care-wages-settlement-timing
 
 | Event | action_type | action_label | action_value | Fires on |
 |---|---|---|---|---|
 | `interactive_view` | – | – | – | First load (once) |
 | `interactive_engagement` | `view_control` | `timing_period` | `quarter` or `year` | "Show by" toggle |
 | `interactive_engagement` | `view_control` | `timing_count` | `all` or `qualify` | "Count" toggle |
+| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
+
+Not tracked: hover, tooltips, focus, scroll or resize.
+
+## Figure 2 (blog numbering): care-wages-pay-premium
+
+| Event | action_type | action_label | action_value | Fires on |
+|---|---|---|---|---|
+| `interactive_view` | – | – | – | First load (once) |
+| `interactive_engagement` | `view_control` | `pay_gap_unit` | `pct` or `pence` | "Show the pay gap in" toggle |
 | `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
 
 Not tracked: hover, tooltips, focus, scroll or resize.
