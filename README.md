@@ -1,10 +1,12 @@
 # What higher care wages would cost councils: interactive figures
 
-Two figures for CGD's blog on care wages and council budgets:
-- **Figure 1, `care-wage-budget-lines.html`:** the England-wide extra cost compared with other council budget lines.
-- **Figure 2, `care-wage-council-map.html`:** the cost to each council, as a map.
+Four figures for CGD's blog on care wages and council budgets (numbered as in the blog):
+- **Figure 1, `care-wage-workforce-map.html`:** how much each council's care workforce relies on non-EU workers, with vacancy rates.
+- **Figure 2, `care-wage-budget-lines.html`:** the England-wide extra cost of higher care wages compared with other council budget lines.
+- **Figure 3, `care-wage-council-map.html`:** the cost to each council, as a map.
+- **Figure 4, `care-wage-settlement-timing.html`:** when the care workers recruited from abroad reach five years in the UK and can apply for settlement.
 
-Both use the same five benchmark buttons and the same shared layer. The sections below describe the map first; Figure 1 has its own section further down.
+All use the same shared layer; Figures 2 and 3 share the five benchmark buttons. The sections below describe the cost map first; the others have their own sections further down (older section headings use the earlier numbering: "Figure 1: budget lines" is now Figure 2).
 
 ## Figure 2: council map
 
@@ -25,21 +27,26 @@ The figure is built for a cgdev.org iframe and follows the CGD interactive-visua
 
 ## Links (GitHub Pages)
 
-- Figure 1 (budget lines): https://center-for-global-development.github.io/care-wages-council-map/care-wage-budget-lines.html
-- Figure 2 (map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-council-map.html
-- Workforce map: https://center-for-global-development.github.io/care-wages-council-map/care-wage-workforce-map.html
+- Figure 1 (workforce map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-workforce-map.html
+- Figure 2 (budget lines): https://center-for-global-development.github.io/care-wages-council-map/care-wage-budget-lines.html
+- Figure 3 (cost map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-council-map.html
+- Figure 4 (settlement timing): https://center-for-global-development.github.io/care-wages-council-map/care-wage-settlement-timing.html
 - Review page (all figures in iframes, as on cgdev.org): https://center-for-global-development.github.io/care-wages-council-map/preview.html
 
 ## Files
 
 | File | What it is |
 |---|---|
-| `care-wage-budget-lines.html` | Figure 1 (`data-cgd-interactive-name="care-wages-budget-lines"`) |
+| `care-wage-workforce-map.html` | Figure 1 (`data-cgd-interactive-name="care-wages-workforce-map"`) |
+| `data/workforce-data.js` | Generated: Skills for Care workforce figures by council. Do not edit by hand. |
+| `care-wage-budget-lines.html` | Figure 2 (`data-cgd-interactive-name="care-wages-budget-lines"`) |
 | `data/budget-lines-data.js` | Generated: the England cost per 1 percentage point and seven budget-line totals. Do not edit by hand. |
-| `care-wage-council-map.html` | Figure 2 (`data-cgd-interactive-name="care-wages-council-costs-map"`) |
+| `care-wage-council-map.html` | Figure 3 (`data-cgd-interactive-name="care-wages-council-costs-map"`) |
 | `data/care-wage-map-data.js` | Generated data: per-council cost per 1 percentage point, denominators, budget lines and SVG boundary paths. Do not edit by hand. |
 | `shared/` | Unmodified copies of the CGD shared layer (`cgd-figure.css`, `cgd-responsive.css`, `chart-core.js`, `dom.js`, `cgd-embed.js`) |
-| `preview.html` | Review page that embeds both figures and applies the height each reports. Not for publication. |
+| `care-wage-settlement-timing.html` | Figure 4 (`data-cgd-interactive-name="care-wages-settlement-timing"`) |
+| `data/settlement-timing-data.js` | Generated: care worker visas granted from abroad, by the quarter holders reach five years. Do not edit by hand. |
+| `preview.html` | Review page that embeds all four figures and applies the height each reports. Not for publication. |
 | `TRACKING.md` | Analytics events |
 
 ## Regenerating the data
@@ -152,3 +159,21 @@ Run in the built-in browser with Sofia Pro installed.
 - check the same resize and origin behaviour in the real cgdev.org parent;
 - test fullscreen manually;
 - run the `qa/verify.mjs` gate, which needs Node and Playwright.
+
+## Figure 4: when care workers recruited from abroad reach settlement
+
+`care-wage-settlement-timing.html` (`data-cgd-interactive-name="care-wages-settlement-timing"`)
+
+- **Question:** when do the care workers recruited from abroad in 2021–25 reach five years in the UK, the point at which they can apply for settlement and are free to leave the sector?
+- **Data** (`data/settlement-timing-data.js`, written by `18_interactive_map_data.py`; run `python scripts/18_interactive_map_data.py --timing-only` to refresh just this file): Home Office sponsored work visas by occupation (SOC 2020), year ending June 2026. Health and Care Worker entry clearance grants to main applicants in caring personal services (SOC 613), each placed five years after the quarter of grant.
+  - Only grants before the 12 May 2025 White Paper are kept: later entrants face a 10-year route under the 2 Nov 2026 decision. 2025 Q2 is split pro rata by days (41 of 91).
+  - About 160,000 in all: 39,000 from now to end 2027, 108,000 during 2028 (peak 2028 Q3, 34,500), 12,000 from 2029.
+- **Controls:**
+  - *Show by* quarter or year.
+  - *Count*: all visas granted, or "expected to qualify", which applies the Home Office's indicative 146,000 of 196,000 (about three-quarters) to every period.
+- **Past and future:** quarters before the current calendar quarter are pale ("Already passed"), computed from the viewer's date, so the chart stays current. The year view stacks the passed and to-come parts of each year. The three totals at the top count from the current quarter.
+- **Markers:** a "Now" line in the quarter view; a shaded 2028 band (in-country switching into care visas ends in July 2028; the first Fair Pay Agreement is due).
+- **Fixed axes:** 40,000 for quarters and 120,000 for years, held across the count toggle so switching shrinks the bars rather than rescaling.
+- **Limitations (in the notes):** excludes in-country switchers (the Home Office's 196,000 includes them); includes some who have since left; grant date stands in for entry date; reaching five years is not the same as leaving care.
+- **Verification (5 Nov 2026):** 700px tall at 1280px in all four views; layout checks at 320, 390, 700 and 1280px clean; no console errors.
+
