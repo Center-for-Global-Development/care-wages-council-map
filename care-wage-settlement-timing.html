@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>When care workers on care visas reach settlement</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261105c">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261105c">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261105d">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261105d">
 <style>
   /* Two toggles side by side on wide screens, stacked on phones. */
   #controls{display:grid;grid-template-columns:repeat(2,minmax(0,300px));align-items:end;gap:6px 14px}
@@ -27,14 +27,14 @@
   .bars{width:100%}
   /* Colour = route; paler = already passed. */
   .bar.abroad{fill:var(--cgd-light-teal)}
-  .bar.switch{fill:#6FBACB}
+  .bar.switch{fill:var(--cgd-gold)}
   .bar.past{opacity:.35}
   .period:focus-visible .bar{stroke:var(--cgd-gold);stroke-width:2}
   .period .hit{fill:transparent}
   .bar-value{fill:var(--cgd-teal-black);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
   .year-label{fill:var(--cgd-teal);font-size:11.5px;font-weight:700}
   .q-label{fill:var(--cgd-dark-gray);font-size:9.5px}
-  .band{fill:#F6E7C1;fill-opacity:.55}
+  .band{fill:#E9F1F5}
   .band-label{fill:var(--cgd-teal-black);font-size:10.5px}
   .now-line{stroke:var(--cgd-dark-gray);stroke-width:1;stroke-dasharray:3 3}
   .now-label{fill:var(--cgd-dark-gray);font-size:10.5px}
@@ -86,7 +86,7 @@
       <h2 class="panel-title" id="panelTitle"></h2>
       <div class="key" aria-hidden="true">
         <span><i style="background:var(--cgd-light-teal)"></i>Granted from abroad</span>
-        <span><i style="background:#6FBACB"></i>Switched from a student visa in the UK</span>
+        <span><i style="background:var(--cgd-gold)"></i>Switched from a student visa in the UK</span>
       </div>
     </div>
     <div class="chart-area"><div class="bars" id="bars"></div></div>
@@ -95,9 +95,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261105c"></script>
-<script src="shared/chart-core.js?v=20261105c"></script>
-<script src="data/settlement-timing-data.js?v=20261105c"></script>
+<script src="shared/dom.js?v=20261105d"></script>
+<script src="shared/chart-core.js?v=20261105d"></script>
+<script src="data/settlement-timing-data.js?v=20261105d"></script>
 <script>
 (() => {
   'use strict';
@@ -318,6 +318,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261105c"></script>
+<script src="shared/cgd-embed.js?v=20261105d"></script>
 </body>
 </html>

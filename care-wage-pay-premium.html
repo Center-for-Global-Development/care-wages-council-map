@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Care pay, vacancies and international recruitment</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261105c">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261105c">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261105d">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261105d">
 <style>
   #controls{display:grid;grid-template-columns:minmax(0,300px);align-items:end;gap:6px 14px}
   #controls .control-group{min-width:0}
@@ -28,10 +28,11 @@
   .val.vac{fill:var(--cgd-dark-gray)}
   .val.bar{fill:var(--cgd-teal-black)}
   .bar.abroad{fill:var(--cgd-light-teal)}
-  .bar.switch{fill:#6FBACB}
+  .bar.switch{fill:var(--cgd-gold)}
   .panel-label .k-plain{fill:var(--cgd-dark-gray);font-weight:400}
   .panel-label .k-abroad{fill:var(--cgd-light-teal);font-weight:700}
-  .panel-label .k-switch{fill:#6FBACB;font-weight:700}
+  /* Gold darkened for text: CGD gold is 1.8:1 on white, #996300 is 5.1:1. */
+  .panel-label .k-switch{fill:#996300;font-weight:700}
   .nodata{fill:var(--cgd-dark-gray);font-size:9.5px;font-style:italic}
   .col .hit{fill:transparent}
   .col.active .hit,.col:focus-visible .hit{fill:rgba(11,76,91,.06)}
@@ -80,9 +81,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261105c"></script>
-<script src="shared/chart-core.js?v=20261105c"></script>
-<script src="data/pay-premium-data.js?v=20261105c"></script>
+<script src="shared/dom.js?v=20261105d"></script>
+<script src="shared/chart-core.js?v=20261105d"></script>
+<script src="data/pay-premium-data.js?v=20261105d"></script>
 <script>
 (() => {
   'use strict';
@@ -248,6 +249,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261105c"></script>
+<script src="shared/cgd-embed.js?v=20261105d"></script>
 </body>
 </html>
