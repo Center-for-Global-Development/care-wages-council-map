@@ -4,14 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Care pay, vacancies and international recruitment</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261105d">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261105d">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261105e">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261105e">
 <style>
-  #controls{display:grid;grid-template-columns:minmax(0,300px);align-items:end;gap:6px 14px}
-  #controls .control-group{min-width:0}
-  #controls .segmented{width:100%}
-  #controls .segmented button{flex:1 1 0;white-space:nowrap}
-
   .key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:10.2px;color:var(--cgd-dark-gray);align-items:center}
   .key span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
   .key i{display:inline-block;width:14px;height:9px;border-radius:2px}
@@ -30,6 +25,8 @@
   .bar.abroad{fill:var(--cgd-light-teal)}
   .bar.switch{fill:var(--cgd-gold)}
   .panel-label .k-plain{fill:var(--cgd-dark-gray);font-weight:400}
+  .panel-label .k-pay{fill:var(--cgd-light-teal);font-weight:700}
+  .panel-label .k-vac{fill:var(--cgd-dark-gray);font-weight:700}
   .panel-label .k-abroad{fill:var(--cgd-light-teal);font-weight:700}
   /* Gold darkened for text: CGD gold is 1.8:1 on white, #996300 is 5.1:1. */
   .panel-label .k-switch{fill:#996300;font-weight:700}
@@ -43,7 +40,6 @@
   #notes a{color:var(--cgd-teal);text-decoration:underline;text-underline-offset:1px}
 
   @media (max-width:640px){
-    #controls{grid-template-columns:minmax(0,1fr)}
     .panel-header{grid-template-columns:minmax(0,1fr)}
   }
 </style>
@@ -61,15 +57,6 @@
     </button>
   </div>
 
-  <div class="controls" id="controls" aria-label="Chart controls">
-    <div class="control-group">
-      <div class="control-label" id="unitLabel">Show the pay gap in</div>
-      <div class="segmented" id="unitToggle" role="group" aria-labelledby="unitLabel">
-        <button type="button" data-unit="pct" aria-pressed="true" data-tip="Median care worker pay above the minimum wage, as a percentage of the minimum wage">Per cent</button>
-        <button type="button" data-unit="pence" aria-pressed="false" data-tip="Median care worker pay above the minimum wage, in pence an hour">Pence an hour</button>
-      </div>
-    </div>
-  </div>
 
   <section class="panel">
     <div class="panel-header">
@@ -81,9 +68,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261105d"></script>
-<script src="shared/chart-core.js?v=20261105d"></script>
-<script src="data/pay-premium-data.js?v=20261105d"></script>
+<script src="shared/dom.js?v=20261105e"></script>
+<script src="shared/chart-core.js?v=20261105e"></script>
+<script src="data/pay-premium-data.js?v=20261105e"></script>
 <script>
 (() => {
   'use strict';
@@ -98,18 +85,8 @@
   const nf2 = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const kfmt = v => nf0.format(Math.round(v / 1000)) + 'k';
 
-  let state = Object.freeze({ unit: 'pct' });
-  const setState = patch => { state = Object.freeze({ ...state, ...patch }); render(); };
-  document.getElementById('unitToggle').addEventListener('click', e => {
-    const b = e.target.closest('button[data-unit]'); if (!b) return;
-    setState({ unit: b.dataset.unit });
-    window.CGDTracking?.engagement('view_control', 'pay_gap_unit', b.dataset.unit);
-  });
-
-  // Fixed axes so the panels stay comparable across the toggle.
-  const PAY = { pct: { max: 8, ticks: [0, 2, 4, 6, 8], fmt: v => v + '%', lab: d => nf1.format(d.gapPct) + '%', v: d => d.gapPct },
-                pence: { max: 80, ticks: [0, 20, 40, 60, 80], fmt: v => v + 'p', lab: d => d.gapP + 'p', v: d => d.gapP } };
-  const VAC = { max: 12, ticks: [0, 4, 8, 12] };
+  // Pay gap and vacancy rate share one percentage axis; pay dots are labelled in pence.
+  const PCT = { max: 12, ticks: [0, 4, 8, 12] };
   const VIS = { max: 120000, ticks: [0, 40000, 80000, 120000] };
 
   /* ---- Tooltip ---- */
@@ -121,7 +98,7 @@
     row('National Living Wage', '£' + nf2.format(d.nlw) + ' an hour');
     row('Gap', `${d.gapP}p (${nf1.format(d.gapPct)}%)`);
     row('Vacancy rate, all roles', nf1.format(d.vac) + '%');
-    if (d.visas == null) row('Care visas', 'no data');
+    if (d.visas == null) row('Care visas', 'N/A');
     else {
       row('Care visas granted from abroad', nf0.format(d.abroad));
       row('Switched from a student visa', nf0.format(d.switch));
@@ -144,21 +121,21 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTip(); });
   document.addEventListener('scroll', hideTip, true);
 
-  /* ---- Chart: three panels sharing the year axis ---- */
+  /* ---- Chart: two panels sharing the year axis ---- */
   const wrap = document.getElementById('chart');
   let lastWidth = 0;
   function draw(width) {
     lastWidth = width;
-    const compact = width < 520, P = PAY[state.unit];
+    const compact = width < 520;
     const m = { left: 34, right: 8 };
-    const panelH = compact ? 96 : 102, gap = 28, top = 20;
-    const panels = [top, top + panelH + gap, top + 2 * (panelH + gap)];
-    const height = panels[2] + panelH + 22;
+    const pctH = compact ? 150 : 170, visH = compact ? 96 : 102, gap = 28, top = 20;
+    const panels = [top, top + pctH + gap];
+    const height = panels[1] + visH + 22;
     const step = (width - m.left - m.right) / Y.length;
     const cx = i => m.left + (i + 0.5) * step;
     const svg = createSvg(wrap, width, height, 'Charts: care pay above the minimum wage, vacancy rate and care visas by year, 2018/19 to 2025/26');
 
-    function axis(y0, spec, fmt, title) {
+    function axis(y0, panelH, spec, fmt, title) {
       const g = svgEl('g', { class: 'axis' });
       const yy = v => y0 + panelH - v / spec.max * panelH;
       spec.ticks.forEach(t => {
@@ -173,9 +150,11 @@
       svg.append(g);
       return yy;
     }
-    const yP = axis(panels[0], P, P.fmt, state.unit === 'pct' ? 'Median care pay above the minimum wage (%)' : 'Median care pay above the minimum wage (pence an hour)');
-    const yV = axis(panels[1], VAC, v => v + '%', 'Vacancy rate, all roles (%)');
-    const yB = axis(panels[2], VIS, v => v ? kfmt(v) : '0', compact
+    const yP = axis(panels[0], pctH, PCT, v => v + '%', compact
+      ? [['Care pay above the minimum wage', 'k-pay'], [' and ', 'k-plain'], ['vacancy rate', 'k-vac'], [' (%)', 'k-plain']]
+      : [['Median care pay above the minimum wage', 'k-pay'], [' and ', 'k-plain'], ['vacancy rate, all roles', 'k-vac'], [' (%)', 'k-plain']]);
+    const yV = yP;
+    const yB = axis(panels[1], visH, VIS, v => v ? kfmt(v) : '0', compact
       ? [['Care visas ', 'k-plain'], ['from abroad', 'k-abroad'], [' and ', 'k-plain'], ['switched in the UK', 'k-switch']]
       : [['Care worker visas ', 'k-plain'], ['granted from abroad', 'k-abroad'], [' and ', 'k-plain'], ['switched from a student visa in the UK', 'k-switch']]);
 
@@ -183,7 +162,7 @@
     Y.forEach((d, i) => {
       const g = svgEl('g', { class: 'col', tabindex: '0', role: 'listitem',
         'aria-label': `${d.fy}: care pay ${d.gapP}p (${nf1.format(d.gapPct)}%) above the minimum wage; vacancy rate ${nf1.format(d.vac)}%; ` +
-          (d.visas == null ? 'no visa data' : `${nf0.format(d.abroad)} care visas from abroad and ${nf0.format(d.switch)} switched in the UK`) });
+          (d.visas == null ? 'care visas N/A' : `${nf0.format(d.abroad)} care visas from abroad and ${nf0.format(d.switch)} switched in the UK`) });
       g.append(svgEl('rect', { class: 'hit', x: m.left + i * step, y: 4, width: step, height: height - 4 }));
       const on = (x, y) => { hideTip(); g.classList.add('active'); showTip(d, x, y); };
       g.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') on(e.clientX, e.clientY); });
@@ -196,16 +175,17 @@
     });
 
     const line = (yy, v, cls) => svg.append(svgEl('path', { class: cls, d: Y.map((d, i) => `${i ? 'L' : 'M'}${cx(i)},${yy(v(d))}`).join('') }));
-    line(yP, P.v, 'line-pay');
+    line(yP, d => d.gapPct, 'line-pay');
     line(yV, d => d.vac, 'line-vac');
     Y.forEach((d, i) => {
-      svg.append(svgEl('circle', { class: 'dot-pay', cx: cx(i), cy: yP(P.v(d)), r: 3.5 }));
+      // Pay sits below the vacancy rate in every year, so its label goes beneath the dot.
+      svg.append(svgEl('circle', { class: 'dot-pay', cx: cx(i), cy: yP(d.gapPct), r: 3.5 }));
       svg.append(svgEl('circle', { class: 'dot-vac', cx: cx(i), cy: yV(d.vac), r: 3 }));
-      const lp = svgEl('text', { class: 'val pay', x: cx(i), y: yP(P.v(d)) - 8, 'text-anchor': 'middle' }); lp.textContent = P.lab(d); svg.append(lp);
-      const lv = svgEl('text', { class: 'val vac', x: cx(i), y: yV(d.vac) - 7, 'text-anchor': 'middle' }); lv.textContent = nf1.format(d.vac); svg.append(lv);
-      const bw = Math.min(42, step * 0.62), bx = cx(i) - bw / 2, y0 = panels[2] + panelH;
+      const lp = svgEl('text', { class: 'val pay', x: cx(i), y: yP(d.gapPct) + 15, 'text-anchor': 'middle' }); lp.textContent = d.gapP + 'p'; svg.append(lp);
+      const lv = svgEl('text', { class: 'val vac', x: cx(i), y: yV(d.vac) - 7, 'text-anchor': 'middle' }); lv.textContent = nf1.format(d.vac) + '%'; svg.append(lv);
+      const bw = Math.min(42, step * 0.62), bx = cx(i) - bw / 2, y0 = panels[1] + visH;
       if (d.visas == null) {
-        const n = svgEl('text', { class: 'nodata', x: cx(i), y: y0 - 4, 'text-anchor': 'middle' }); n.textContent = compact ? '' : 'no data'; svg.append(n);
+        const n = svgEl('text', { class: 'nodata', x: cx(i), y: y0 - 4, 'text-anchor': 'middle' }); n.textContent = 'N/A'; svg.append(n);
       } else {
         svg.append(svgEl('rect', { class: 'bar abroad', x: bx, y: yB(d.abroad), width: bw, height: y0 - yB(d.abroad) }));
         svg.append(svgEl('rect', { class: 'bar switch', x: bx, y: yB(d.visas), width: bw, height: yB(d.abroad) - yB(d.visas) }));
@@ -226,14 +206,13 @@
     const link = key => element('a', { text: SOURCES[key][0], attributes: { href: SOURCES[key][1], target: '_blank', rel: 'noopener' } });
     document.getElementById('notes').replaceChildren(
       'Source: CGD analysis of ', link('sfc'), ' (charts 32 and 80); ', link('ho'), '; Home Office FOI data published by the ', link('mo'), '. ',
-      'Pay is the median hourly rate of care workers and support workers in the independent sector each March, against the National Living Wage then in force. ',
+      'Pay is plotted as the percentage by which the median hourly rate of care workers and support workers in the independent sector each March exceeded the National Living Wage then in force; labels give the gap in pence an hour. ',
       'Vacancies are for all roles in the independent sector. ',
-      'Care visas are Health and Care Worker visas granted from abroad to care workers (main applicants) and certificates of sponsorship used by people switching into care work from a student visa in the UK; both series start in 2021, and switchers from the Graduate route and other in-country routes are not included. ',
+      'Care visas are Health and Care Worker visas granted from abroad to care workers (main applicants) and certificates of sponsorship used by people switching into care work from a student visa in the UK; both series start in 2021, so earlier years are N/A, and switchers from the Graduate route and other in-country routes are not included. ',
       'Large rises in the minimum wage squeeze any lead over it, and the 2021/22 rise in vacancies also reflected the vaccine requirement for care home staff and the post-pandemic labour market.');
   }
 
   function render() {
-    document.querySelectorAll('#unitToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.unit === state.unit)));
     hideTip();
     draw(lastWidth || Math.max(280, Math.floor(wrap.getBoundingClientRect().width) || 600));
   }
@@ -249,6 +228,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261105d"></script>
+<script src="shared/cgd-embed.js?v=20261105e"></script>
 </body>
 </html>

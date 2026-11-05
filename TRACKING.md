@@ -61,7 +61,6 @@ Not tracked: hover, tooltips, focus, scroll or resize.
 | Event | action_type | action_label | action_value | Fires on |
 |---|---|---|---|---|
 | `interactive_view` | – | – | – | First load (once) |
-| `interactive_engagement` | `view_control` | `pay_gap_unit` | `pct` or `pence` | "Show the pay gap in" toggle |
 | `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
 
 Not tracked: hover, tooltips, focus, scroll or resize.

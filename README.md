@@ -176,11 +176,12 @@ Run in the built-in browser with Sofia Pro installed.
 - **Controls:**
   - *Show by* quarter or year.
   - *Count*: all visas granted, or "expected to qualify", which applies the Home Office's indicative 146,000 of 196,000 (about three-quarters) to every period.
-- **Past and future:** quarters before the current calendar quarter are pale (not labelled in the key, at the author's request; the "Now" line marks the boundary), computed from the viewer's date, so the chart stays current. The year view stacks the passed and to-come parts of each year. The three totals at the top count from the current quarter.
+- **Past and future:** quarters before the current calendar quarter are pale (not labelled in the key, at the author's request; the "Now" line marks the boundary), computed from the viewer's date, so the chart stays current. The year view stacks the passed and to-come parts of each year.
+- **No subtitle or summary cards** (removed 5 Nov 2026 at the author's request): the title states the finding, and the notes say which visas are counted. The period totals are in the blog text and the tooltips.
 - **Markers:** a "Now" line in the quarter view; a shaded 2028 band (in-country switching into care visas ends in July 2028; the first Fair Pay Agreement is due).
-- **Fixed axes:** 40,000 for quarters and 120,000 for years, held across the count toggle so switching shrinks the bars rather than rescaling.
+- **Fixed axes:** 45,000 for quarters and 150,000 for years, held across the count toggle so switching shrinks the bars rather than rescaling.
 - **Limitations (in the notes):** excludes in-country switchers (the Home Office's 196,000 includes them); includes some who have since left; grant date stands in for entry date; reaching five years is not the same as leaving care.
-- **Verification (5 Nov 2026):** 700px tall at 1280px in all four views; layout checks at 320, 390, 700 and 1280px clean; no console errors.
+- **Verification (5 Nov 2026, after removing the subtitle and cards):** 653px tall at 1280px in all four views; at 320–375px the 2028 band label sits left of the band; no overflow or console errors.
 
 ### In-country switchers (Figures 2 and 5)
 
@@ -195,12 +196,11 @@ Run in the built-in browser with Sofia Pro installed.
 `care-wage-pay-premium.html` (`data-cgd-interactive-name="care-wages-pay-premium"`)
 
 - **Question:** did care pay respond to the 2021/22 shortage, and what happened to it as international recruits arrived?
-- **Three panels on a shared year axis:**
-  - median care worker pay above the National Living Wage in force each March (toggle: per cent or pence an hour);
-  - the vacancy rate, all roles;
+- **Two panels on a shared year axis:**
+  - median care worker pay above the National Living Wage in force each March and the vacancy rate, all roles, on one percentage axis; the pay dots are labelled with the gap in pence an hour (the per cent/pence toggle was dropped on 5 Nov 2026);
   - care visas by financial year, stacked: granted from abroad and switched from a student visa in the UK.
-- **Data** (`data/pay-premium-data.js`, written by `18_interactive_map_data.py`): Skills for Care, The state of the adult social care sector and workforce in England 2026 (chart 80, p.123: median pay and NLW; chart 32, p.66: vacancy rate), independent sector; visa series as for Figure 5. Visa data start in 2021, so 2018/19 to 2020/21 show "no data".
+- **Data** (`data/pay-premium-data.js`, written by `18_interactive_map_data.py`): Skills for Care, The state of the adult social care sector and workforce in England 2026 (chart 80, p.123: median pay and NLW; chart 32, p.66: vacancy rate), independent sector; visa series as for Figure 5. Visa data start in 2021, so 2018/19 to 2020/21 show "N/A".
 - **Interaction:** hovering, tapping or focusing a year shows every value for that year in one tooltip.
 - **Caveats (in the notes):** large NLW rises squeeze any lead over it; the 2021/22 vacancy spike also reflected the vaccine requirement for care home staff and the post-pandemic labour market.
-- **Verification (5 Nov 2026):** 743px tall at 1280px under both units; layout checks at 320, 390, 700 and 1280px clean; no console errors.
+- **Verification (5 Nov 2026, single percentage axis):** 597px tall at 1280px, 690px at 375px; no overflow or console errors.
 
