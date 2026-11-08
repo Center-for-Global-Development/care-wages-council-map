@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en" data-cgd-interactive-name="care-wages-fiscal-breakeven">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Care workers' fiscal savings and the MAC's estimate</title>
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261108a">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261108a">
+<style>
+  #controls{display:grid;grid-template-columns:minmax(0,300px) minmax(0,420px);align-items:end;gap:6px 14px}
+  #controls .control-group{min-width:0}
+  #controls .segmented{width:100%}
+  #controls .segmented button{flex:1 1 0;white-space:nowrap;font-size:12.5px}
+
+  .key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:10.2px;color:var(--cgd-dark-gray);align-items:center}
+  .key span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+  .key i{display:inline-block;width:14px;height:9px;border-radius:2px}
+  .panel-title{white-space:normal}
+
+  .chart{width:100%}
+  .area.wage{fill:var(--cgd-light-teal)}
+  .area.carers{fill:var(--cgd-gold)}
+  .area.delays{fill:var(--cgd-blue)}
+  .area.ae{fill:var(--cgd-teal-gray)}
+  .mac-line{stroke:var(--cgd-teal-black);stroke-width:1.6;stroke-dasharray:6 4}
+  .mac-label{fill:var(--cgd-teal-black);font-size:10.5px;font-weight:600;paint-order:stroke;stroke:#fff;stroke-width:3px}
+  .be-line{stroke:var(--cgd-teal-black);stroke-width:1}
+  .be-dot{fill:#fff;stroke:var(--cgd-teal-black);stroke-width:2}
+  .be-label{fill:var(--cgd-teal-black);font-size:11px;font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:3px}
+  .stay-line{stroke:var(--cgd-dark-gray);stroke-width:1;stroke-dasharray:2 3}
+  .stay-label{fill:var(--cgd-dark-gray);font-size:10px;paint-order:stroke;stroke:#fff;stroke-width:3px}
+  .axis-title{fill:var(--cgd-dark-gray);font-size:10.5px}
+  .cursor{stroke:var(--cgd-teal-black);stroke-width:1;opacity:.5}
+  .short{display:none}
+  .hit{fill:transparent;cursor:crosshair}
+  .hit:focus{outline:none}
+
+  #notes{font-size:9.6px;line-height:1.3;margin-top:8px;padding-top:6px}
+  #notes a{color:var(--cgd-teal);text-decoration:underline;text-underline-offset:1px}
+
+  @media (max-width:640px){
+    #controls{grid-template-columns:minmax(0,1fr)}
+    .panel-header{grid-template-columns:minmax(0,1fr)}
+    #controls .segmented button{font-size:12px}
+    .full{display:none}
+    .short{display:inline}
+  }
+</style>
+</head>
+<body>
+<main id="vizRoot" class="viz-wrapper">
+  <div class="header-row">
+    <div class="title-block">
+      <h1 id="vizTitle">On central assumptions, care workers' wider savings to the public purse match the MAC's estimated cost after 6½–8 years in care</h1>
+      <p class="viz-sub">Cumulative savings per care worker by source, against the MAC's net lifetime cost, in present value</p>
+    </div>
+    <button class="fullscreen-btn" id="fullscreenBtn" type="button" aria-label="View fullscreen" data-tip="View fullscreen">
+      <svg class="icon-expand" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="icon-compress" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M8 21v-5H3M16 21v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <div class="controls" id="controls" aria-label="Chart controls">
+    <div class="control-group">
+      <div class="control-label" id="caseLabel">Assumptions</div>
+      <div class="segmented" id="caseToggle" role="group" aria-labelledby="caseLabel">
+        <button type="button" data-case="cautious" aria-pressed="false" data-tip="Smallest pay gap (9%), more recruits from out of work, no effect on hospital delays, few carers affected, shorter stays in care">Cautious</button>
+        <button type="button" data-case="central" aria-pressed="true" data-tip="15% pay gap and mid-range values for every other assumption">Central</button>
+        <button type="button" data-case="generous" aria-pressed="false" data-tip="20% pay gap, few recruits from out of work, delays in proportion to the staffing gap, more carers affected, longer stays in care">Generous</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-label" id="thetaLabel">Without these workers, the posts would be</div>
+      <div class="segmented" id="thetaToggle" role="group" aria-labelledby="thetaLabel">
+        <button type="button" data-theta="1" aria-pressed="false" data-tip="Providers raise pay until British-based workers fill every post: only the saving on the wage bill counts"><span class="full">Filled by higher pay</span><span class="short">Higher pay</span></button>
+        <button type="button" data-theta="0.5" aria-pressed="true" data-tip="Higher pay fills half the posts; the other half go unfilled">Half and half</button>
+        <button type="button" data-theta="0" aria-pressed="false" data-tip="The posts go unfilled and care is rationed: only NHS and family-carer savings count"><span class="full">Left unfilled</span><span class="short">Unfilled</span></button>
+      </div>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title" id="panelTitle"></h2>
+      <div class="key" aria-hidden="true">
+        <span><i style="background:var(--cgd-light-teal)"></i>Lower care wage bill</span>
+        <span><i style="background:var(--cgd-gold)"></i>Family carers kept in work</span>
+        <span><i style="background:var(--cgd-blue)"></i>Fewer delayed discharges</span>
+        <span><i style="background:var(--cgd-teal-gray)"></i>Less A&amp;E use</span>
+      </div>
+    </div>
+    <div class="chart-area"><div class="chart" id="chart"></div></div>
+  </section>
+  <div class="notes" id="notes"></div>
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+</main>
+
+<script src="shared/dom.js?v=20261108a"></script>
+<script src="shared/chart-core.js?v=20261108a"></script>
+<script src="data/fiscal-breakeven-data.js?v=20261108a"></script>
+<script>
+(() => {
+  'use strict';
+  const { element, svgEl } = window.CGDDom;
+  const { observeInlineSize, createSvg } = window.CGDCore;
+  const D = window.CARE_FISCAL_BREAKEVEN;
+  const r = D.r, M = D.mac;
+  const XMAX = 30, YMAX = 200000;           // fixed across every state so the picture only moves when the assumptions do
+  const SERIES = [                           // stacked bottom to top
+    { key: 'wage', label: 'Lower care wage bill (net)', route: 'wage' },
+    { key: 'carers', label: 'Family carers kept in work', route: 'ration' },
+    { key: 'delays', label: 'Fewer delayed discharges', route: 'ration' },
+    { key: 'ae', label: 'Less A&E use', route: 'ration' }];
+
+  const nf0 = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
+  const nf1 = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const gbp = v => '£' + nf0.format(Math.round(v / 100) * 100);
+  const kfmt = v => v === 0 ? '0' : '£' + nf0.format(v / 1000) + 'k';
+
+  let state = Object.freeze({ case: 'central', theta: 0.5 });
+  const setState = patch => { state = Object.freeze({ ...state, ...patch }); render(); };
+  document.getElementById('caseToggle').addEventListener('click', e => {
+    const b = e.target.closest('button[data-case]'); if (!b) return;
+    setState({ case: b.dataset.case });
+    window.CGDTracking?.engagement('view_control', 'breakeven_case', b.dataset.case);
+  });
+  document.getElementById('thetaToggle').addEventListener('click', e => {
+    const b = e.target.closest('button[data-theta]'); if (!b) return;
+    setState({ theta: Number(b.dataset.theta) });
+    window.CGDTracking?.engagement('view_control', 'breakeven_counterfactual', b.dataset.theta);
+  });
+
+  /* Annual saving per care worker, by series, for the current state. The wage series is net of the recruits' offset. */
+  function annual() {
+    const c = D.cases[state.case], th = state.theta;
+    return { wage: th * (c.wage + c.recruits), carers: (1 - th) * c.carers, delays: (1 - th) * c.delays, ae: (1 - th) * c.ae };
+  }
+  const pvFactor = t => (1 - Math.pow(1 + r, -t)) / r;   // present value of £1 a year for t years
+  function breakEven(s) {
+    const x = r * M / s;
+    return s > 0 && x < 1 ? -Math.log(1 - x) / Math.log(1 + r) : Infinity;
+  }
+
+  /* ---- Tooltip ---- */
+  const tooltip = document.getElementById('tooltip');
+  function tipFor(t) {
+    const a = annual(), c = D.cases[state.case], k = pvFactor(t);
+    const grid = element('div', { className: 'tooltip-grid' });
+    const row = (lab, v) => grid.append(element('span', { text: lab }), element('b', { text: v }));
+    let tot = 0;
+    SERIES.slice().reverse().forEach(s => { const v = a[s.key] * k; tot += v; if (a[s.key]) row(s.label, gbp(v)); });
+    if (state.theta > 0) row('of which recruits’ tax and benefits forgone', '−' + gbp(-state.theta * c.recruits * k));
+    row('Total', gbp(tot));
+    row('Share of the MAC’s cost', nf0.format(100 * tot / M) + '%');
+    return [element('strong', { text: `After ${t} year${t === 1 ? '' : 's'} of care work` }), grid];
+  }
+  function showTip(t, x, y) {
+    const host = document.fullscreenElement || document.getElementById('vizRoot');
+    if (tooltip.parentNode !== host) host.append(tooltip);
+    tooltip.replaceChildren(...tipFor(t));
+    tooltip.hidden = false;
+    const pad = 8, box = tooltip.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+    let l = x + 14, tp = y + 14;
+    if (l + box.width > vw - pad) l = x - box.width - 14;
+    if (tp + box.height > vh - pad) tp = y - box.height - 14;
+    tooltip.style.left = Math.max(pad, Math.min(l, vw - box.width - pad)) + 'px';
+    tooltip.style.top = Math.max(pad, Math.min(tp, vh - box.height - pad)) + 'px';
+  }
+  let cursor = null;
+  const hideTip = () => { tooltip.hidden = true; if (cursor) cursor.setAttribute('visibility', 'hidden'); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTip(); });
+  document.addEventListener('scroll', hideTip, true);
+
+  /* ---- Chart ---- */
+  const wrap = document.getElementById('chart');
+  let lastWidth = 0;
+  function draw(width) {
+    lastWidth = width;
+    const compact = width < 520;
+    const height = compact ? 300 : 340;
+    const m = { top: 14, right: 12, bottom: 34, left: 44 };
+    const pw = width - m.left - m.right, ph = height - m.top - m.bottom;
+    const x = t => m.left + t / XMAX * pw;
+    const y = v => m.top + ph - Math.min(v, YMAX) / YMAX * ph;
+    const a = annual(), s = Object.values(a).reduce((p, v) => p + v, 0), be = breakEven(s);
+    const exp = D.cases[state.case].expectedYears;
+    const svg = createSvg(wrap, width, height,
+      `Stacked area chart: cumulative savings per care worker against the MAC's net lifetime cost of ${gbp(M)}; ` +
+      (isFinite(be) ? `break-even after ${nf1.format(be)} years` : 'break-even not reached'));
+    const defs = svgEl('defs');
+    const clip = svgEl('clipPath', { id: 'plotClip' });
+    clip.append(svgEl('rect', { x: m.left, y: m.top, width: pw, height: ph }));
+    defs.append(clip); svg.append(defs);
+
+    // Axes and grid
+    const axis = svgEl('g', { class: 'axis' });
+    [0, 50000, 100000, 150000, 200000].forEach(v => {
+      axis.append(svgEl('line', { class: 'grid-line', x1: m.left, x2: m.left + pw, y1: y(v), y2: y(v) }));
+      const l = svgEl('text', { x: m.left - 6, y: y(v) + 3.5, 'text-anchor': 'end', class: 'small-text' }); l.textContent = kfmt(v); axis.append(l);
+    });
+    [0, 5, 10, 15, 20, 25, 30].forEach(t => {
+      const l = svgEl('text', { x: x(t), y: m.top + ph + 14, 'text-anchor': 'middle', class: 'small-text' }); l.textContent = t; axis.append(l);
+    });
+    const xt = svgEl('text', { class: 'axis-title', x: m.left + pw / 2, y: height - 4, 'text-anchor': 'middle' });
+    xt.textContent = 'Years of care work'; axis.append(xt);
+    svg.append(axis);
+
+    // Stacked areas (continuous: value at t = annual saving x PV factor)
+    const N = 120, ts = Array.from({ length: N + 1 }, (_, i) => i / N * XMAX);
+    const g = svgEl('g', { 'clip-path': 'url(#plotClip)' });
+    let base = ts.map(() => 0);
+    SERIES.forEach(se => {
+      if (!a[se.key]) return;
+      const top = ts.map((t, i) => base[i] + a[se.key] * pvFactor(t));
+      const d = ts.map((t, i) => `${i ? 'L' : 'M'}${x(t)},${y(top[i])}`).join('') +
+        ts.slice().reverse().map((t, i) => `L${x(t)},${y(base[N - i])}`).join('') + 'Z';
+      g.append(svgEl('path', { class: 'area ' + se.key, d }));
+      base = top;
+    });
+    svg.append(g);
+
+    // Expected time in care
+    svg.append(svgEl('line', { class: 'stay-line', x1: x(exp), x2: x(exp), y1: m.top, y2: m.top + ph }));
+    const sl = svgEl('text', { class: 'stay-label', x: x(exp) + 4, y: m.top + 10 });
+    sl.textContent = `Expected time in care: ${nf1.format(exp)} years`; svg.append(sl);
+
+    // MAC line
+    svg.append(svgEl('line', { class: 'mac-line', x1: m.left, x2: m.left + pw, y1: y(M), y2: y(M) }));
+    const ml = svgEl('text', { class: 'mac-label', x: m.left + pw - 2, y: y(M) - 6, 'text-anchor': 'end' });
+    ml.textContent = compact ? `MAC net cost per care worker: ${gbp(M)}` : `MAC net lifetime cost per care worker, including dependants: ${gbp(M)}`;
+    svg.append(ml);
+
+    // Break-even marker
+    if (be <= XMAX) {
+      svg.append(svgEl('line', { class: 'be-line', x1: x(be), x2: x(be), y1: y(M), y2: m.top + ph }));
+      svg.append(svgEl('circle', { class: 'be-dot', cx: x(be), cy: y(M), r: 4.5 }));
+      const right = x(be) < m.left + pw * 0.6;
+      const bl = svgEl('text', { class: 'be-label', x: x(be) + (right ? 8 : -8), y: y(M) + 18, 'text-anchor': right ? 'start' : 'end' });
+      bl.textContent = `Break-even after ${nf1.format(be)} years`; svg.append(bl);
+    } else {
+      const bl = svgEl('text', { class: 'be-label', x: m.left + pw - 2, y: y(M) + 18, 'text-anchor': 'end' });
+      bl.textContent = isFinite(be) ? `Break-even not reached within ${XMAX} years (about ${nf0.format(be)})` : 'Break-even never reached';
+      svg.append(bl);
+    }
+
+    // Hover / focus: nearest whole year
+    cursor = svgEl('line', { class: 'cursor', y1: m.top, y2: m.top + ph, visibility: 'hidden' });
+    svg.append(cursor);
+    const hit = svgEl('rect', { class: 'hit', x: m.left, y: m.top, width: pw, height: ph, tabindex: '0',
+      'aria-label': 'Savings by year: use left and right arrow keys' });
+    let kt = Math.round(Math.min(XMAX, Math.max(1, isFinite(be) ? be : 10)));
+    const at = (t, cxp, cyp) => {
+      cursor.setAttribute('x1', x(t)); cursor.setAttribute('x2', x(t)); cursor.setAttribute('visibility', 'visible');
+      showTip(t, cxp, cyp);
+    };
+    const yearAt = clientX => { const b = svg.getBoundingClientRect(); return Math.min(XMAX, Math.max(1, Math.round((clientX - b.left - m.left) / pw * XMAX))); };
+    hit.addEventListener('pointermove', e => at(yearAt(e.clientX), e.clientX, e.clientY));
+    hit.addEventListener('pointerdown', e => at(yearAt(e.clientX), e.clientX, e.clientY));
+    hit.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch') hideTip(); });
+    hit.addEventListener('focus', () => { const b = svg.getBoundingClientRect(); at(kt, b.left + x(kt), b.top + m.top + 20); });
+    hit.addEventListener('blur', hideTip);
+    hit.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault(); kt = Math.min(XMAX, Math.max(1, kt + (e.key === 'ArrowRight' ? 1 : -1)));
+      const b = svg.getBoundingClientRect(); at(kt, b.left + x(kt), b.top + m.top + 20);
+    });
+    svg.append(hit);
+  }
+
+  /* ---- Notes ---- */
+  const SOURCES = {
+    mac: ['MAC (2025)', 'https://assets.publishing.service.gov.uk/media/6938108633c7ace9c4a41e42/The_Fiscal_Impact_of_Immigration_Final__1_.pdf'],
+    ho: ['Home Office (2026)', 'https://www.gov.uk/government/publications/estimated-lifetime-net-fiscal-costs-for-care-workers-and-their-adult-dependants'],
+    ifs: ['IFS', 'https://ifs.org.uk/sites/default/files/output_url_files/WP202040-Long-term-care-spending-and-hospital-use-among-the-older-population-in-England.pdf'],
+    kf: ["King's Fund", 'https://www.kingsfund.org.uk/insight-and-analysis/press-releases/delayed-discharges-cost-to-nhs-rises-7-5-to-pound2-7bn'],
+    pickard: ['Pickard et al.', 'https://researchonline.lse.ac.uk/id/eprint/84954'],
+    dwp: ['DWP', 'https://www.gov.uk/government/statistics/the-cost-of-working-age-ill-health-and-disability-that-prevents-work'],
+    cuk: ['Carers UK', 'https://www.carersuk.org/press-releases/1-500-people-quit-work-to-care-for-older-and-disabled-relatives-every-day-150-increase-in-seven-years']
+  };
+  function renderNotes() {
+    const link = key => element('a', { text: SOURCES[key][0], attributes: { href: SOURCES[key][1], target: '_blank', rel: 'noopener' } });
+    document.getElementById('notes').replaceChildren(
+      'Source: CGD analysis of ', link('mac'), ' and ', link('ho'), ' estimates, with ', link('ifs'), ', ', link('kf'), ', ',
+      link('pickard'), ', ', link('dwp'), ' and ', link('cuk'), ' data; the methodology note gives every formula and assumption. ',
+      'Savings are for one care worker working continuously, discounted at 3% a year, the rate behind the MAC’s estimate, which includes the share of adult dependants. ',
+      'The lower wage bill is councils’ saving from not having to raise care pay, net of the 40% the Treasury would recover and of the tax and benefits that recruits drawn from out of work would have brought. ',
+      'If higher pay would fill every post, the NHS and family-carer savings would happen anyway and are not counted; if the posts would go unfilled, only those savings count. ',
+      'All three sets of assumptions are judgements, not estimates.');
+  }
+
+  function render() {
+    document.querySelectorAll('#caseToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.case === state.case)));
+    document.querySelectorAll('#thetaToggle button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.theta) === state.theta)));
+    const a = annual(), s = Object.values(a).reduce((p, v) => p + v, 0);
+    document.getElementById('panelTitle').textContent = `Savings of about ${gbp(s)} a year per care worker`;
+    hideTip();
+    draw(lastWidth || Math.max(280, Math.floor(wrap.getBoundingClientRect().width) || 600));
+  }
+
+  document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    const v = document.getElementById('vizRoot');
+    if (document.fullscreenElement === v) document.exitFullscreen(); else v.requestFullscreen?.();
+  });
+
+  renderNotes();
+  render();
+  observeInlineSize(wrap, w => draw(w));
+  window.CGD_READY = true;
+})();
+</script>
+<script src="shared/cgd-embed.js?v=20261108a"></script>
+</body>
+</html>

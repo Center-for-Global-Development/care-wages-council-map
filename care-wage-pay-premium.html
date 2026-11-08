@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Care pay, vacancies and international recruitment</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261105e">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261105e">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261108a">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261108a">
 <style>
   .key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:10.2px;color:var(--cgd-dark-gray);align-items:center}
   .key span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
@@ -22,8 +22,12 @@
   .val.pay{fill:var(--cgd-light-teal);font-weight:600}
   .val.vac{fill:var(--cgd-dark-gray)}
   .val.bar{fill:var(--cgd-teal-black)}
+  .val.brit{fill:var(--cgd-dark-gray)}
   .bar.abroad{fill:var(--cgd-light-teal)}
   .bar.switch{fill:var(--cgd-gold)}
+  .bar.brit{fill:var(--cgd-dark-gray)}
+  .zero-line{stroke:var(--cgd-teal-black);stroke-width:1}
+  .panel-label .k-brit{fill:var(--cgd-dark-gray);font-weight:700}
   .panel-label .k-plain{fill:var(--cgd-dark-gray);font-weight:400}
   .panel-label .k-pay{fill:var(--cgd-light-teal);font-weight:700}
   .panel-label .k-vac{fill:var(--cgd-dark-gray);font-weight:700}
@@ -49,7 +53,7 @@
   <div class="header-row">
     <div class="title-block">
       <h1 id="vizTitle">Care pay pulled ahead of the minimum wage when shortages peaked, then fell back</h1>
-      <p class="viz-sub">Care worker pay above the National Living Wage, vacancies and care visas, independent sector, England</p>
+      <p class="viz-sub">Care worker pay above the National Living Wage, vacancies, care visas and British workers, England</p>
     </div>
     <button class="fullscreen-btn" id="fullscreenBtn" type="button" aria-label="View fullscreen" data-tip="View fullscreen">
       <svg class="icon-expand" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -68,9 +72,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261105e"></script>
-<script src="shared/chart-core.js?v=20261105e"></script>
-<script src="data/pay-premium-data.js?v=20261105e"></script>
+<script src="shared/dom.js?v=20261108a"></script>
+<script src="shared/chart-core.js?v=20261108a"></script>
+<script src="data/pay-premium-data.js?v=20261108a"></script>
 <script>
 (() => {
   'use strict';
@@ -87,7 +91,10 @@
 
   // Pay gap and vacancy rate share one percentage axis; pay dots are labelled in pence.
   const PCT = { max: 12, ticks: [0, 4, 8, 12] };
-  const VIS = { max: 120000, ticks: [0, 40000, 80000, 120000] };
+  // Visas (people) and the change in posts filled by British workers share one axis, with falls below zero.
+  const VIS = { min: -60000, max: 120000, ticks: [-40000, 0, 40000, 80000, 120000] };
+  const sgn = v => (v > 0 ? '+' : v < 0 ? '\u2212' : '');
+  const sfmt = v => sgn(v) + nf0.format(Math.round(Math.abs(v) / 1000)) + 'k';
 
   /* ---- Tooltip ---- */
   const tooltip = document.getElementById('tooltip');
@@ -103,6 +110,7 @@
       row('Care visas granted from abroad', nf0.format(d.abroad));
       row('Switched from a student visa', nf0.format(d.switch));
     }
+    row('Change in posts filled by British workers', sgn(d.british) + nf0.format(Math.abs(d.british)));
     return [element('strong', { text: `${d.fy} (pay as at March ${'20' + d.fy.slice(-2)})` }), grid];
   }
   function showTip(d, x, y) {
@@ -128,24 +136,32 @@
     lastWidth = width;
     const compact = width < 520;
     const m = { left: 34, right: 8 };
-    const pctH = compact ? 150 : 170, visH = compact ? 96 : 102, gap = 28, top = 20;
+    const pctH = compact ? 150 : 170, visH = compact ? 130 : 140, gap = 41, top = 20;
     const panels = [top, top + pctH + gap];
-    const height = panels[1] + visH + 22;
+    const height = panels[1] + visH + 18;
     const step = (width - m.left - m.right) / Y.length;
     const cx = i => m.left + (i + 0.5) * step;
     const svg = createSvg(wrap, width, height, 'Charts: care pay above the minimum wage, vacancy rate and care visas by year, 2018/19 to 2025/26');
 
     function axis(y0, panelH, spec, fmt, title) {
       const g = svgEl('g', { class: 'axis' });
-      const yy = v => y0 + panelH - v / spec.max * panelH;
+      const lo = spec.min || 0;
+      const yy = v => y0 + panelH - (v - lo) / (spec.max - lo) * panelH;
       spec.ticks.forEach(t => {
         g.append(svgEl('line', { class: 'grid-line', x1: m.left, y1: yy(t), x2: width - m.right, y2: yy(t) }));
         const l = svgEl('text', { x: m.left - 5, y: yy(t) + 3.5, 'text-anchor': 'end', class: 'small-text' }); l.textContent = fmt(t); g.append(l);
       });
       // A title given as [text, class] runs doubles as the colour key (series names set in their bar colours).
       const tl = svgEl('text', { class: 'panel-label', x: m.left, y: y0 - 7 });
-      if (Array.isArray(title)) title.forEach(([t, cls]) => { const s = svgEl('tspan', cls ? { class: cls } : {}); s.textContent = t; tl.append(s); });
-      else tl.textContent = title;
+      // ['\n'] starts a new line; earlier lines sit above, so the label never runs into the plot.
+      const lines = Array.isArray(title)
+        ? title.reduce((a, it) => { if (it[0] === '\n') a.push([]); else a[a.length - 1].push(it); return a; }, [[]])
+        : [[[title]]];
+      lines.forEach((ln, k) => ln.forEach(([t, cls], j) => {
+        const attrs = cls ? { class: cls } : {};
+        if (j === 0) { attrs.x = m.left; attrs.y = y0 - 7 - (lines.length - 1 - k) * 13; }
+        const s = svgEl('tspan', attrs); s.textContent = t; tl.append(s);
+      }));
       g.append(tl);
       svg.append(g);
       return yy;
@@ -155,14 +171,16 @@
       : [['Median care pay above the minimum wage', 'k-pay'], [' and ', 'k-plain'], ['vacancy rate, all roles', 'k-vac'], [' (%)', 'k-plain']]);
     const yV = yP;
     const yB = axis(panels[1], visH, VIS, v => v ? kfmt(v) : '0', compact
-      ? [['Care visas ', 'k-plain'], ['from abroad', 'k-abroad'], [' and ', 'k-plain'], ['switched in the UK', 'k-switch']]
-      : [['Care worker visas ', 'k-plain'], ['granted from abroad', 'k-abroad'], [' and ', 'k-plain'], ['switched from a student visa in the UK', 'k-switch']]);
+      ? [['Care visas ', 'k-plain'], ['from abroad', 'k-abroad'], [' and ', 'k-plain'], ['switched in the UK', 'k-switch'], ['\n'], ['Change in posts filled by British workers', 'k-brit']]
+      : [['Care worker visas ', 'k-plain'], ['granted from abroad', 'k-abroad'], [' and ', 'k-plain'], ['switched from a student visa in the UK', 'k-switch'], ['\n'], ['Change in posts filled by British workers', 'k-brit'], [' (all roles)', 'k-plain']]);
+    svg.append(svgEl('line', { class: 'zero-line', x1: m.left, x2: width - m.right, y1: yB(0), y2: yB(0) }));
 
     // Hover columns first, so lines and labels sit above them.
     Y.forEach((d, i) => {
       const g = svgEl('g', { class: 'col', tabindex: '0', role: 'listitem',
         'aria-label': `${d.fy}: care pay ${d.gapP}p (${nf1.format(d.gapPct)}%) above the minimum wage; vacancy rate ${nf1.format(d.vac)}%; ` +
-          (d.visas == null ? 'care visas N/A' : `${nf0.format(d.abroad)} care visas from abroad and ${nf0.format(d.switch)} switched in the UK`) });
+          (d.visas == null ? 'care visas N/A' : `${nf0.format(d.abroad)} care visas from abroad and ${nf0.format(d.switch)} switched in the UK`) +
+          `; posts filled by British workers ${d.british < 0 ? 'down' : 'up'} ${nf0.format(Math.abs(d.british))}` });
       g.append(svgEl('rect', { class: 'hit', x: m.left + i * step, y: 4, width: step, height: height - 4 }));
       const on = (x, y) => { hideTip(); g.classList.add('active'); showTip(d, x, y); };
       g.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') on(e.clientX, e.clientY); });
@@ -183,13 +201,20 @@
       svg.append(svgEl('circle', { class: 'dot-vac', cx: cx(i), cy: yV(d.vac), r: 3 }));
       const lp = svgEl('text', { class: 'val pay', x: cx(i), y: yP(d.gapPct) + 15, 'text-anchor': 'middle' }); lp.textContent = d.gapP + 'p'; svg.append(lp);
       const lv = svgEl('text', { class: 'val vac', x: cx(i), y: yV(d.vac) - 7, 'text-anchor': 'middle' }); lv.textContent = nf1.format(d.vac) + '%'; svg.append(lv);
-      const bw = Math.min(42, step * 0.62), bx = cx(i) - bw / 2, y0 = panels[1] + visH;
+      // Two bars per year: visas (left) and the change in British-held posts (right, below zero when it fell).
+      const bw = Math.min(26, step * 0.36), y0 = yB(0), vx = cx(i) - bw - 1, bx2 = cx(i) + 1;
       if (d.visas == null) {
-        const n = svgEl('text', { class: 'nodata', x: cx(i), y: y0 - 4, 'text-anchor': 'middle' }); n.textContent = 'N/A'; svg.append(n);
+        const n = svgEl('text', { class: 'nodata', x: vx + bw / 2, y: y0 + 11, 'text-anchor': 'middle' }); n.textContent = 'N/A'; svg.append(n); // below zero, clear of the British label
       } else {
-        svg.append(svgEl('rect', { class: 'bar abroad', x: bx, y: yB(d.abroad), width: bw, height: y0 - yB(d.abroad) }));
-        svg.append(svgEl('rect', { class: 'bar switch', x: bx, y: yB(d.visas), width: bw, height: yB(d.abroad) - yB(d.visas) }));
-        const lb = svgEl('text', { class: 'val bar', x: cx(i), y: yB(d.visas) - 4, 'text-anchor': 'middle' }); lb.textContent = kfmt(d.visas); svg.append(lb);
+        svg.append(svgEl('rect', { class: 'bar abroad', x: vx, y: yB(d.abroad), width: bw, height: y0 - yB(d.abroad) }));
+        svg.append(svgEl('rect', { class: 'bar switch', x: vx, y: yB(d.visas), width: bw, height: yB(d.abroad) - yB(d.visas) }));
+        const lb = svgEl('text', { class: 'val bar', x: vx + bw / 2, y: yB(d.visas) - 4, 'text-anchor': 'middle' }); lb.textContent = kfmt(d.visas); svg.append(lb);
+      }
+      if (d.british != null) {
+        const yb = yB(d.british);
+        svg.append(svgEl('rect', { class: 'bar brit', x: bx2, y: Math.min(yb, y0), width: bw, height: Math.max(1, Math.abs(y0 - yb)) }));
+        const lt = svgEl('text', { class: 'val brit', x: bx2 + bw / 2, y: d.british < 0 ? yb + 11 : yb - 4, 'text-anchor': 'middle' });
+        lt.textContent = sfmt(d.british); svg.append(lt);
       }
       const yl = svgEl('text', { class: 'year-label', x: cx(i), y: height - 6, 'text-anchor': 'middle' });
       yl.textContent = compact ? d.fy.slice(2) : d.fy; svg.append(yl);
@@ -209,6 +234,7 @@
       'Pay is plotted as the percentage by which the median hourly rate of care workers and support workers in the independent sector each March exceeded the National Living Wage then in force; labels give the gap in pence an hour. ',
       'Vacancies are for all roles in the independent sector. ',
       'Care visas are Health and Care Worker visas granted from abroad to care workers (main applicants) and certificates of sponsorship used by people switching into care work from a student visa in the UK; both series start in 2021, so earlier years are N/A, and switchers from the Graduate route and other in-country routes are not included. ',
+      'Posts filled by British workers are for all roles in local authorities and independent providers (Skills for Care statistical appendix 2025, table 5.7, and the 2026 report, section 4.6.1); they count posts, while visas count people. ',
       'Large rises in the minimum wage squeeze any lead over it, and the 2021/22 rise in vacancies also reflected the vaccine requirement for care home staff and the post-pandemic labour market.');
   }
 
@@ -228,6 +254,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261105e"></script>
+<script src="shared/cgd-embed.js?v=20261108a"></script>
 </body>
 </html>

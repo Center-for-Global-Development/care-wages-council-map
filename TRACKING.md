@@ -45,7 +45,7 @@ Not tracked: hover, tooltips, focus, scroll or resize.
 | `interactive_engagement` | `detail_open` | `council_map_click` | `selected` or `cleared` | Click or tap on a council or circle |
 | `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
 
-## Figure 5 (blog numbering): care-wages-settlement-timing
+## Figure 6 (blog numbering): care-wages-settlement-timing
 
 | Event | action_type | action_label | action_value | Fires on |
 |---|---|---|---|---|
@@ -65,3 +65,15 @@ Not tracked: hover, tooltips, focus, scroll or resize.
 
 Not tracked: hover, tooltips, focus, scroll or resize.
 
+
+
+## Figure 4 (blog numbering): care-wages-fiscal-breakeven
+
+| Event | action_type | action_label | action_value | Fires on |
+|---|---|---|---|---|
+| `interactive_view` | – | – | – | First load (once) |
+| `interactive_engagement` | `view_control` | `breakeven_case` | `cautious`, `central` or `generous` | "Assumptions" toggle |
+| `interactive_engagement` | `view_control` | `breakeven_counterfactual` | `1`, `0.5` or `0` | "Without these workers" toggle |
+| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
+
+Not tracked: hover, tooltips, focus, scroll or resize.
