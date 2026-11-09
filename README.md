@@ -235,3 +235,7 @@ The bottom panel now pairs each year's visa bar with the change in posts filled 
 - **Figure 5:** title "Higher care pay could cost councils £60–£130 a year per home" (median council cost per dwelling at 9% and 20%; a longer council-tax wording wrapped to two lines and pushed the map to 777px). Subtitle carries the council tax framing.
 - **Shared layer:** `.viz-sub` no longer has `max-width:70ch` (it wrapped subtitles at about half the figure width, worst in fullscreen); now `max-width:none; text-wrap:pretty`. This is a local change to the CGD shared CSS. Version stamp 20261109b.
 - **Heights at 1280px:** 746, 626, 554, 663, 750, 655.
+
+## Figure 4 update (9 Nov 2026): same price basis as the MAC
+
+Savings are now converted from 2025/26 to 2022/23 prices (HM Treasury GDP deflator, Sept 2026: 0.8846) and grown at 1.8% a year in real terms (the MAC's baseline growth in spending and taxes) before discounting at 3%, so they match the MAC's present value. `data/fiscal-breakeven-data.js` now carries `g` and `defl`; cumulative savings = annual × defl × (1 − ρ^t)/(r − g), with ρ = (1 + g)/(1 + r). Central years to net fiscally positive: 7.0 (posts unfilled) to 8.7 (filled by higher pay), 7.8 half and half; cautious 21–32; generous 2.9–5.8. The panel heading's annual figure stays in 2025/26 prices.

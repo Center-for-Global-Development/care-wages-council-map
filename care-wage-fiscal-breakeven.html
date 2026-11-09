@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Care workers' fiscal savings and the MAC's estimate</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261109b">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261109b">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261109c">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261109c">
 <style>
   #controls{display:grid;grid-template-columns:minmax(0,300px) minmax(0,420px);align-items:end;gap:6px 14px}
   #controls .control-group{min-width:0}
@@ -56,7 +56,7 @@
   <div class="header-row">
     <div class="title-block">
       <h1 id="vizTitle">Care workers' spillover benefits could exceed their estimated fiscal costs</h1>
-      <p class="viz-sub">Cumulative fiscal savings per care worker by source, against the MAC's estimate of their net lifetime cost, in present value</p>
+      <p class="viz-sub">Cumulative fiscal savings per care worker by source, against the MAC's estimate of their net lifetime cost, in present value at 2022/23 prices</p>
     </div>
     <button class="fullscreen-btn" id="fullscreenBtn" type="button" aria-label="View fullscreen" data-tip="View fullscreen">
       <svg class="icon-expand" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -100,16 +100,17 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261109b"></script>
-<script src="shared/chart-core.js?v=20261109b"></script>
-<script src="data/fiscal-breakeven-data.js?v=20261109b"></script>
+<script src="shared/dom.js?v=20261109c"></script>
+<script src="shared/chart-core.js?v=20261109c"></script>
+<script src="data/fiscal-breakeven-data.js?v=20261109c"></script>
 <script>
 (() => {
   'use strict';
   const { element, svgEl } = window.CGDDom;
   const { observeInlineSize, createSvg } = window.CGDCore;
   const D = window.CARE_FISCAL_BREAKEVEN;
-  const r = D.r, M = D.mac;
+  const r = D.r, g = D.g, defl = D.defl, M = D.mac;
+  const rho = (1 + g) / (1 + r);
   const XMAX = 30, YMAX = 200000;           // fixed across every state so the picture only moves when the assumptions do
   const SERIES = [                           // stacked bottom to top
     { key: 'wage', label: 'Lower care wage bill (net)', route: 'wage' },
@@ -140,10 +141,12 @@
     const c = D.cases[state.case], th = state.theta;
     return { wage: th * (c.wage + c.recruits), carers: (1 - th) * c.carers, delays: (1 - th) * c.delays, ae: (1 - th) * c.ae };
   }
-  const pvFactor = t => (1 - Math.pow(1 + r, -t)) / r;   // present value of £1 a year for t years
+  // PV, in 2022/23 prices, of £1 a year in 2025/26 prices for t years, growing at g in real terms and discounted at r:
+  // the basis of the MAC's estimate.
+  const pvFactor = t => defl * (1 - Math.pow(rho, t)) / (r - g);
   function breakEven(s) {
-    const x = r * M / s;
-    return s > 0 && x < 1 ? -Math.log(1 - x) / Math.log(1 + r) : Infinity;
+    const x = M * (r - g) / (s * defl);
+    return s > 0 && x < 1 ? Math.log(1 - x) / Math.log(rho) : Infinity;
   }
 
   /* ---- Tooltip ---- */
@@ -297,7 +300,7 @@
     document.getElementById('notes').replaceChildren(
       'Source: CGD analysis of ', link('mac'), ' and ', link('ho'), ' estimates, with ', link('ifs'), ', ', link('kf'), ', ',
       link('pickard'), ', ', link('dwp'), ' and ', link('cuk'), ' data; the methodology note gives every formula and assumption. ',
-      'Savings are for one care worker working continuously, discounted at 3% a year, the rate behind the MAC’s estimate, which includes the share of adult dependants. ',
+      'Savings are for one care worker working continuously, on the same basis as the MAC’s estimate (which includes the share of adult dependants): converted from 2025/26 to 2022/23 prices with the GDP deflator, growing 1.8% a year in real terms and discounted at 3% a year. ',
       'The lower wage bill is councils’ saving from not having to raise care pay, net of the 40% the Treasury would recover and of the tax and benefits that recruits drawn from out of work would have brought. ',
       'If higher pay would fill every post, the NHS and family-carer savings would happen anyway and are not counted; if the posts would go unfilled, only those savings count. ',
       'Expected time in care assumes that each year 10% of workers leave the sector before settlement and 25% after it (central; 15% and 40% cautious, 5% and 15% generous): an assumption, since no data track exits after settlement. ',
@@ -308,7 +311,7 @@
     document.querySelectorAll('#caseToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.case === state.case)));
     document.querySelectorAll('#thetaToggle button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.theta) === state.theta)));
     const a = annual(), s = Object.values(a).reduce((p, v) => p + v, 0);
-    document.getElementById('panelTitle').textContent = `Fiscal savings of about ${gbp(s)} a year per care worker`;
+    document.getElementById('panelTitle').textContent = `Fiscal savings of about ${gbp(s)} a year per care worker (2025/26 prices)`;
     hideTip();
     draw(lastWidth || Math.max(280, Math.floor(wrap.getBoundingClientRect().width) || 600));
   }
@@ -324,6 +327,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261109b"></script>
+<script src="shared/cgd-embed.js?v=20261109c"></script>
 </body>
 </html>
