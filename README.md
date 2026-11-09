@@ -239,3 +239,10 @@ The bottom panel now pairs each year's visa bar with the change in posts filled 
 ## Figure 4 update (9 Nov 2026): same price basis as the MAC
 
 Savings are now converted from 2025/26 to 2022/23 prices (HM Treasury GDP deflator, Sept 2026: 0.8846) and grown at 1.8% a year in real terms (the MAC's baseline growth in spending and taxes) before discounting at 3%, so they match the MAC's present value. `data/fiscal-breakeven-data.js` now carries `g` and `defl`; cumulative savings = annual × defl × (1 − ρ^t)/(r − g), with ρ = (1 + g)/(1 + r). Central years to net fiscally positive: 7.0 (posts unfilled) to 8.7 (filled by higher pay), 7.8 half and half; cautious 21–32; generous 2.9–5.8. The panel heading's annual figure stays in 2025/26 prices.
+
+## Figure 4 update (9 Nov 2026, later): tenure and all routes
+
+- **Expected time in care:** the cohort behind the MAC's figure is those expected to settle, and settling requires five years' sponsored work, so retention in years 1–5 is now 100%. After settlement, 25% a year leave (40% cautious, 15% generous). Expected years in care: 6.5 / 8.0 / 10.7.
+- **Wage saving:** now covers the care councils buy, their own in-house services and direct payments (£210m per 1% uplift, was £170m for bought-in care only).
+- **Attribution:** stated in the notes. The settling cohort is credited with the sector-wide effect, because international recruits supplied the marginal labour; dependants are not counted separately.
+- **Result:** central 6.8–7.0 years to net fiscally positive (6.9 half and half), against 8.0 expected years in care. Cautious 15–32; generous 2.9–4.7.
