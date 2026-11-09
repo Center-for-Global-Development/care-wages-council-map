@@ -12,7 +12,7 @@ All use the same shared layer; Figures 3 and 5 share the five benchmark buttons.
 
 ## Figure 2: council map
 
-An interactive companion to CGD's blog on care wages and council budgets. The reader picks how much higher care labour costs are, using one of five benchmarks (2.5, 4.5, 9, 12 or 15%). Each English council is then shaded either by the council tax rise needed to cover the extra yearly cost (the cost as a share of its council tax requirement, assuming the full cost is passed on through council tax) or by the cost as a share of its core spending power.
+An interactive companion to CGD's blog on care wages and council budgets. The reader picks how much higher care labour costs are, using one of five benchmarks (4.5, 9, 12, 15 or 20%). Each English council is then shaded either by the council tax rise needed to cover the extra yearly cost (the cost as a share of its council tax requirement, assuming the full cost is passed on through council tax) or by the cost as a share of its core spending power.
 
 Hovering or tapping a council shows:
 - its extra cost, and that cost as a share of council tax and of spending power;
@@ -32,7 +32,7 @@ The figure is built for a cgdev.org iframe and follows the CGD interactive-visua
 - Figure 1 (workforce map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-workforce-map.html
 - Figure 2 (pay, vacancies and visas): https://center-for-global-development.github.io/care-wages-council-map/care-wage-pay-premium.html
 - Figure 3 (budget lines): https://center-for-global-development.github.io/care-wages-council-map/care-wage-budget-lines.html
-- Figure 4 (fiscal break-even): https://center-for-global-development.github.io/care-wages-council-map/care-wage-fiscal-breakeven.html
+- Figure 4 (net fiscal position): https://center-for-global-development.github.io/care-wages-council-map/care-wage-fiscal-breakeven.html
 - Figure 5 (cost map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-council-map.html
 - Figure 6 (settlement timing): https://center-for-global-development.github.io/care-wages-council-map/care-wage-settlement-timing.html
 - Review page (all figures in iframes, as on cgdev.org): https://center-for-global-development.github.io/care-wages-council-map/preview.html
@@ -216,7 +216,7 @@ Run in the built-in browser with Sofia Pro installed.
 
 - **Question:** how many years of care work does it take for the savings the MAC's lifetime estimate leaves out to match its net cost (about £81,000 per care worker, including the share of adult dependants)?
 - **Chart:** stacked areas of cumulative savings per care worker, in present value at 3% (the MAC's rate): lower care wage bill (net of the 40% the Treasury recovers and of recruits' tax and benefits forgone), family carers kept in work, fewer delayed discharges, less A&E use. A dashed line marks the MAC cost, a dot the break-even year, and a dotted line the expected time in care.
-- **Controls:** *Assumptions* (Cautious, Central, Generous) and *Without these workers, the posts would be* (Filled by higher pay, Half and half, Left unfilled: θ = 1, 0.5, 0). Default: Central, half and half (break-even 7.2 years).
+- **Controls:** *Assumptions* (Cautious, Central, Generous) and *Without international workers, care posts would be* (Filled by higher pay, Half and half, Left unfilled: θ = 1, 0.5, 0). Default: Central, half and half (break-even 7.2 years).
 - **Axes fixed** at 0–30 years and £0–200k in every state, so only the assumptions move the picture; areas above £200k are clipped. Where break-even is beyond 30 years, the label says so.
 - **Interaction:** hover, tap or arrow keys on the plot show cumulative savings by source for that year and the share of the MAC cost.
 - **Method and sources:** 'Methodology note - care worker fiscal spillovers.docx' and 'Fiscal ledger scenarios.xlsx' in the project folder.
@@ -225,3 +225,13 @@ Run in the built-in browser with Sofia Pro installed.
 ## Figure 2 update (8 Nov 2026): British workers
 
 The bottom panel now pairs each year's visa bar with the change in posts filled by British workers (dark grey; below zero when it fell). Source: Skills for Care statistical appendix 2025, table 5.7 (filled posts × British share, local authority and independent sectors, all roles) and, for 2025/26, the 2026 report (section 4.6.1: around 40,000 fewer). Posts, not people. The shared axis runs from −60k to 120k. 669px tall at 1280px.
+
+
+## Changes, 9 Nov 2026
+
+- **Benchmarks:** 2.5% (NHS Band 2) dropped as too small to matter on the evidence; 20% (top of the 10–20% range, about £15.12 an hour) added. Figures 3 and 5 now offer 4.5, 9, 12, 15 and 20%; the budget-line axis (£0–6bn) already fits 20% (£3.41bn).
+- **Figure 2:** title "International workers have provided care labour at the margin"; subtitle on care pay converging with the minimum wage while posts filled by British workers fell. ("Fell", not "left": Skills for Care attributes the fall mainly to fewer British starters.)
+- **Figure 4:** title "Care workers' spillover benefits could exceed their estimated fiscal costs"; "net fiscally positive" replaces "break-even"; labels in regular weight with soft rounded backgrounds instead of bold haloed text; MAC line in the key; hover shows a dot on the stack top (no crosshair or vertical line); citation years in the notes; the notes now state the retention assumption behind "expected time in care"; clearer button tips.
+- **Figure 5:** title "Higher care pay could cost councils £60–£130 a year per home" (median council cost per dwelling at 9% and 20%; a longer council-tax wording wrapped to two lines and pushed the map to 777px). Subtitle carries the council tax framing.
+- **Shared layer:** `.viz-sub` no longer has `max-width:70ch` (it wrapped subtitles at about half the figure width, worst in fullscreen); now `max-width:none; text-wrap:pretty`. This is a local change to the CGD shared CSS. Version stamp 20261109b.
+- **Heights at 1280px:** 746, 626, 554, 663, 750, 655.

@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>What higher care wages would cost councils, against other budgets</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261030a">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261030a">
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261109b">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261109b">
 <style>
   /* Controls: the benchmark buttons and their note side by side on wide screens,
      stacked on phones. The id selector deliberately outranks the shared .controls grid. */
@@ -76,9 +76,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261030a"></script>
-<script src="shared/chart-core.js?v=20261030a"></script>
-<script src="data/budget-lines-data.js?v=20261030a"></script>
+<script src="shared/dom.js?v=20261109b"></script>
+<script src="shared/chart-core.js?v=20261109b"></script>
+<script src="data/budget-lines-data.js?v=20261109b"></script>
 <script>
 (() => {
   'use strict';
@@ -88,11 +88,11 @@
   const MEDIAN_PAY = 12.60;   // Skills for Care, care/support-worker median, March 2026
   // Same benchmarks as the council map (care-wage-council-map.html) and the blog table.
   const BENCHMARKS = [
-    { u: 2.5, short: '2.5%', label: 'NHS Band 2 rate', text: 'NHS Band 2 pay rate, 2026/27 (£12.92 an hour)' },
     { u: 4.5, short: '4.5%', label: 'NHS Band 3 entry rate', text: 'NHS Band 3 entry rate, 2026/27 (£13.17 an hour)' },
     { u: 9,   short: '9%',   label: 'MAC: £1 above minimum wage', text: 'Migration Advisory Committee (2022): £1 above the minimum wage (£13.71 an hour)' },
     { u: 12,  short: '12%',  label: 'NHS Band 3 after two years', text: 'NHS Band 3 after two years, 2026/27 (£14.05 an hour)' },
-    { u: 15,  short: '15%',  label: 'Mid-point of evidence on pay needed', text: 'Middle of the 10–20% premium over the minimum wage that the evidence suggests may be needed to attract more UK workers' }
+    { u: 15,  short: '15%',  label: 'Mid-point of evidence on pay needed', text: 'Middle of the 10–20% premium over the minimum wage that the evidence suggests may be needed to attract more UK workers' },
+    { u: 20,  short: '20%',  label: 'Top of evidence on pay needed', text: 'Top of the 10–20% premium over the minimum wage that the evidence suggests may be needed (about £15.12 an hour)' },
   ];
   // Axis held fixed across benchmarks so a moving bar means a changing cost.
   const AXIS_MAX = 6000, TICKS = [0, 2000, 4000, 6000];
@@ -240,6 +240,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261030a"></script>
+<script src="shared/cgd-embed.js?v=20261109b"></script>
 </body>
 </html>
