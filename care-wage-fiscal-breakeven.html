@@ -120,6 +120,7 @@
 
   const nf0 = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
   const nf1 = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const nf1t = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 1 });   // trims a trailing .0
   const gbp = v => '£' + nf0.format(Math.round(v / 100) * 100);
   const kfmt = v => v === 0 ? '0' : '£' + nf0.format(v / 1000) + 'k';
 
@@ -235,7 +236,7 @@
     // Expected time in care
     svg.append(svgEl('line', { class: 'stay-line', x1: x(exp), x2: x(exp), y1: m.top, y2: m.top + ph }));
     const sl = svgEl('text', { class: 'stay-label', x: x(exp) + 5, y: m.top + 11 });
-    sl.textContent = `Expected time in care: ${nf1.format(exp)} years`; svg.append(sl);
+    sl.textContent = `Expected time in care: ${nf1t.format(exp)} years`; svg.append(sl);
     pill(sl, 'stay-pill');
 
     // MAC line
@@ -250,7 +251,7 @@
       svg.append(svgEl('line', { class: 'be-line', x1: x(be), x2: x(be), y1: y(M), y2: m.top + ph }));
       svg.append(svgEl('circle', { class: 'be-dot', cx: x(be), cy: y(M), r: 4.5 }));
       const bl = svgEl('text', { class: 'be-label', x: x(be) + 9, y: y(M) + 17 });
-      bl.textContent = `Net fiscally positive after ${nf1.format(be)} years`; svg.append(bl);
+      bl.textContent = `Net fiscally positive after ${nf1t.format(be)} years`; svg.append(bl);
       if (bl.getBBox().x + bl.getBBox().width > m.left + pw) { bl.setAttribute('x', x(be) - 9); bl.setAttribute('text-anchor', 'end'); }
       pill(bl, 'be-pill');
     } else {
