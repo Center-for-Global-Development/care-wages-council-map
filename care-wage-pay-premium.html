@@ -74,7 +74,7 @@
 
 <script src="shared/dom.js?v=20261109b"></script>
 <script src="shared/chart-core.js?v=20261109b"></script>
-<script src="data/pay-premium-data.js?v=20261109b"></script>
+<script src="data/pay-premium-data.js?v=20261110a"></script>
 <script>
 (() => {
   'use strict';
@@ -104,7 +104,7 @@
     row('Median care worker pay', '£' + nf2.format(d.median) + ' an hour');
     row('National Living Wage', '£' + nf2.format(d.nlw) + ' an hour');
     row('Gap', `${d.gapP}p (${nf1.format(d.gapPct)}%)`);
-    row('Vacancy rate, all roles', nf1.format(d.vac) + '%');
+    row('Vacancy rate, all employers', nf1.format(d.vac) + '%');
     if (d.visas == null) row('Care visas', 'N/A');
     else {
       row('Care visas granted from abroad', nf0.format(d.abroad));
@@ -168,7 +168,7 @@
     }
     const yP = axis(panels[0], pctH, PCT, v => v + '%', compact
       ? [['Care pay above the minimum wage', 'k-pay'], [' and ', 'k-plain'], ['vacancy rate', 'k-vac'], [' (%)', 'k-plain']]
-      : [['Median care pay above the minimum wage', 'k-pay'], [' and ', 'k-plain'], ['vacancy rate, all roles', 'k-vac'], [' (%)', 'k-plain']]);
+      : [['Median care pay above the minimum wage', 'k-pay'], [' and ', 'k-plain'], ['vacancy rate, all employers', 'k-vac'], [' (%)', 'k-plain']]);
     const yV = yP;
     const yB = axis(panels[1], visH, VIS, v => v ? kfmt(v) : '0', compact
       ? [['Care visas ', 'k-plain'], ['from abroad', 'k-abroad'], [' and ', 'k-plain'], ['switched in the UK', 'k-switch'], ['\n'], ['Change in posts filled by British workers', 'k-brit']]
@@ -230,9 +230,9 @@
   function renderNotes() {
     const link = key => element('a', { text: SOURCES[key][0], attributes: { href: SOURCES[key][1], target: '_blank', rel: 'noopener' } });
     document.getElementById('notes').replaceChildren(
-      'Source: CGD analysis of ', link('sfc'), ' (charts 32 and 80); ', link('ho'), '; Home Office FOI data published by the ', link('mo'), '. ',
+      'Source: CGD analysis of ', link('sfc'), ' (chart 80, key findings and section 3.2) and its statistical appendix 2025 (table 4.14); ', link('ho'), '; Home Office FOI data published by the ', link('mo'), '. ',
       'Pay is plotted as the percentage by which the median hourly rate of care workers and support workers in the independent sector each March exceeded the National Living Wage then in force; labels give the gap in pence an hour. ',
-      'Vacancies are for all roles in the independent sector. ',
+      'Vacancies are for all roles and all employers (independent providers, councils and people employing their own care staff with direct payments); 2021/22 and 2025/26 come from the 2026 report, other years from the 2025 appendix. ',
       'Care visas are Health and Care Worker visas granted from abroad to care workers (main applicants) and certificates of sponsorship used by people switching into care work from a student visa in the UK; both series start in 2021, so earlier years are N/A, and switchers from the Graduate route and other in-country routes are not included. ',
       'Posts filled by British workers are for all roles in local authorities and independent providers (Skills for Care statistical appendix 2025, table 5.7, and the 2026 report, section 4.6.1); they count posts, while visas count people. ',
       'Large rises in the minimum wage squeeze any lead over it, and the 2021/22 rise in vacancies also reflected the vaccine requirement for care home staff and the post-pandemic labour market.');
