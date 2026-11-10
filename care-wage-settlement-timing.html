@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>When care workers on care visas reach settlement</title>
-<link rel="stylesheet" href="shared/cgd-figure.css?v=20261109b">
-<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261109b">
+<title>When care and senior care workers on care visas reach settlement</title>
+<link rel="stylesheet" href="shared/cgd-figure.css?v=20261110a">
+<link rel="stylesheet" href="shared/cgd-responsive.css?v=20261110a">
 <style>
   /* Two toggles side by side on wide screens, stacked on phones. */
   #controls{display:grid;grid-template-columns:repeat(2,minmax(0,300px));align-items:end;gap:6px 14px}
@@ -19,10 +19,9 @@
   .panel-title{white-space:normal}
 
   .bars{width:100%}
-  /* Colour = route; paler = already passed. */
+  /* Colour = route. */
   .bar.abroad{fill:var(--cgd-light-teal)}
   .bar.switch{fill:var(--cgd-gold)}
-  .bar.past{opacity:.35}
   .period:focus-visible .bar{stroke:var(--cgd-gold);stroke-width:2}
   .period .hit{fill:transparent}
   .bar-value{fill:var(--cgd-teal-black);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
@@ -30,8 +29,6 @@
   .q-label{fill:var(--cgd-dark-gray);font-size:9.5px}
   .band{fill:#E9F1F5}
   .band-label{fill:var(--cgd-teal-black);font-size:10.5px}
-  .now-line{stroke:var(--cgd-dark-gray);stroke-width:1;stroke-dasharray:3 3}
-  .now-label{fill:var(--cgd-dark-gray);font-size:10.5px}
 
   #notes{font-size:9.6px;line-height:1.3;margin-top:8px;padding-top:6px}
   #notes a{color:var(--cgd-teal);text-decoration:underline;text-underline-offset:1px}
@@ -46,7 +43,7 @@
 <main id="vizRoot" class="viz-wrapper">
   <div class="header-row">
     <div class="title-block">
-      <h1 id="vizTitle">Most care workers recruited on care visas reach five years in the UK in 2027 and 2028</h1>
+      <h1 id="vizTitle">Most care and senior care workers recruited on care visas reach five years in the UK in 2027 and 2028</h1>
     </div>
     <button class="fullscreen-btn" id="fullscreenBtn" type="button" aria-label="View fullscreen" data-tip="View fullscreen">
       <svg class="icon-expand" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -65,7 +62,7 @@
     <div class="control-group">
       <div class="control-label" id="countLabel">Count</div>
       <div class="segmented" id="countToggle" role="group" aria-labelledby="countLabel">
-        <button type="button" data-count="all" aria-pressed="true" data-tip="Every care worker visa granted before the May 2025 White Paper, from abroad or by switching from a student visa in the UK">All visas granted</button>
+        <button type="button" data-count="all" aria-pressed="true" data-tip="Every care or senior care worker visa granted before the May 2025 White Paper, from abroad or by switching from a student visa in the UK">All visas granted</button>
         <button type="button" data-count="qualify" aria-pressed="false" data-tip="Scaled by the Home Office's indicative share expected to meet the five-year requirements (146,000 of 196,000, about three-quarters)">Expected to qualify</button>
       </div>
     </div>
@@ -85,9 +82,9 @@
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </main>
 
-<script src="shared/dom.js?v=20261109b"></script>
-<script src="shared/chart-core.js?v=20261109b"></script>
-<script src="data/settlement-timing-data.js?v=20261109b"></script>
+<script src="shared/dom.js?v=20261110a"></script>
+<script src="shared/chart-core.js?v=20261110a"></script>
+<script src="data/settlement-timing-data.js?v=20261110a"></script>
 <script>
 (() => {
   'use strict';
@@ -104,11 +101,7 @@
   const fmt = v => nf0.format(round(v));
   const fmtTick = v => v === 0 ? '0' : nf0.format(v / 1000) + 'k';
 
-  // Quarter index: year * 4 + (quarter - 1). "Now" is the current calendar quarter, counted as still to come.
-  const qIndex = s => Number(s.slice(0, 4)) * 4 + Number(s.slice(-1)) - 1;
-  const today = new Date();
-  const NOW = today.getFullYear() * 4 + Math.floor(today.getMonth() / 3);
-  const Q = T.quarters.map(r => ({ ...r, i: qIndex(r.q), year: r.q.slice(0, 4) }));
+  const Q = T.quarters.map(r => ({ ...r, year: r.q.slice(0, 4) }));
 
   let state = Object.freeze({ period: 'quarter', count: 'all' });
   const setState = patch => { state = Object.freeze({ ...state, ...patch }); render(); };
@@ -125,21 +118,20 @@
     window.CGDTracking?.engagement('view_control', 'timing_count', b.dataset.count);
   });
 
-  /* Periods to draw. Each holds four parts: route (abroad / switched) x timing (passed / to come);
-     a quarter is wholly passed or to come, a year can be both. */
+  /* Periods to draw, each split by route (abroad / switched in the UK). */
   function periods() {
     const k = scale(), out = [];
     Q.forEach(r => {
       const key = state.period === 'quarter' ? r.q : r.year;
       let p = out.find(o => o.key === key);
       if (!p) {
-        p = { key, label: state.period === 'quarter' ? 'Q' + r.q.slice(-1) : r.year, year: r.year, grants: [], ap: 0, af: 0, sp: 0, sf: 0 };
+        p = { key, label: state.period === 'quarter' ? 'Q' + r.q.slice(-1) : r.year, year: r.year, grants: [], abroad: 0, switched: 0 };
         out.push(p);
       }
       p.grants.push(r.grant);
-      if (r.i < NOW) { p.ap += r.n * k; p.sp += r.s * k; } else { p.af += r.n * k; p.sf += r.s * k; }
+      p.abroad += r.n * k; p.switched += r.s * k;
     });
-    out.forEach(p => { p.abroad = p.ap + p.af; p.switched = p.sp + p.sf; p.past = p.ap + p.sp; p.total = p.abroad + p.switched; });
+    out.forEach(p => { p.total = p.abroad + p.switched; });
     return out;
   }
 
@@ -153,7 +145,6 @@
     row('Switched from a student visa', 'about ' + fmt(p.switched));
     row(state.count === 'qualify' ? 'Total expected to qualify' : 'Total', 'about ' + fmt(p.total));
     if (state.count === 'all') row('Expected to qualify', 'about ' + fmt(p.total * QUALIFY));
-    if (p.past && p.past < p.total) row('Of which already passed', 'about ' + fmt(p.past));
     return [element('strong', { text: `Reach five years in ${p.key}` }), grid];
   }
   function showTip(p, x, y) {
@@ -185,7 +176,7 @@
     const step = plotW / data.length, barW = Math.max(3, step * (quarter ? 0.72 : 0.62));
     const x = i => m.left + i * step + (step - barW) / 2;
     const y = v => m.top + plotH - Math.min(v, ax.max) / ax.max * plotH;
-    const svg = createSvg(wrap, width, height, 'Bar chart: care worker visas granted from abroad by when holders reach five years in the UK');
+    const svg = createSvg(wrap, width, height, 'Bar chart: care and senior care worker visas granted before May 2025, by when holders reach five years in the UK');
     const y0 = m.top + plotH;
 
     // 2028 band: in-country switching ends (July) and the first Fair Pay Agreement is due.
@@ -210,24 +201,14 @@
     });
     svg.append(axis);
 
-    // "Now" marker in the quarter view, at the start of the current quarter.
-    if (quarter) {
-      const ni = data.findIndex(d => qIndex(d.key) >= NOW);
-      if (ni > 0) {
-        const nx = m.left + ni * step;
-        svg.append(svgEl('line', { class: 'now-line', x1: nx, y1: m.top - 4, x2: nx, y2: y0 }));
-        const nl = svgEl('text', { class: 'now-label', x: nx + 4, y: m.top + 6 }); nl.textContent = 'Now'; svg.append(nl);
-      }
-    }
-
     data.forEach((d, i) => {
       const tot = d.total;
       const g = svgEl('g', { class: 'period', tabindex: '0', role: 'listitem',
         'aria-label': `Reach five years in ${d.key}: about ${fmt(tot)} (${fmt(d.abroad)} from abroad, ${fmt(d.switched)} switched in the UK)` });
       g.append(svgEl('rect', { class: 'hit', x: m.left + i * step, y: m.top, width: step, height: plotH }));
-      // Stack bottom-up: abroad passed, abroad to come, switched passed, switched to come.
+      // Stack bottom-up: granted from abroad, then switched in the UK.
       let base = 0;
-      [['ap', 'abroad past'], ['af', 'abroad'], ['sp', 'switch past'], ['sf', 'switch']].forEach(([k, cls]) => {
+      [['abroad', 'abroad'], ['switched', 'switch']].forEach(([k, cls]) => {
         if (!d[k]) return;
         g.append(svgEl('rect', { class: 'bar ' + cls, x: x(i), y: y(base + d[k]), width: barW, height: y(base) - y(base + d[k]) }));
         base += d[k];
@@ -270,7 +251,8 @@
     const link = key => element('a', { text: SOURCES[key][0], attributes: { href: SOURCES[key][1], target: '_blank', rel: 'noopener' } });
     document.getElementById('notes').replaceChildren(
       'Source: CGD analysis of ', link('ho'), '; Home Office FOI data published by the ', link('mo'), '; ', link('es'), ' (November 2026). ',
-      'Health and Care Worker visas granted from abroad to care workers (main applicants, caring personal services), and certificates of sponsorship used by people switching into care work from a student visa in the UK (FOI data to 2026 Q1), placed five years after the quarter of grant; time on a student visa does not count towards settlement. ',
+      'Health and Care Worker visas granted from abroad to main applicants in caring personal services (occupation group 613, mainly care workers and senior care workers), and certificates of sponsorship used by people switching into care roles from a student visa in the UK (FOI data to 2026 Q1), placed five years after the quarter of grant; time on a student visa does not count towards settlement. ',
+      'Senior care workers have been eligible since December 2020, but care workers only since 15 February 2022, so those reaching five years before 2027 are mainly senior care workers. Both roles closed to recruitment from abroad on 22 July 2025. ',
       'Only visas granted before the White Paper of 12 May 2025 are shown, since later entrants face a 10-year route; 2025 Q2 is split pro rata. ',
       'The chart excludes switchers from the Graduate route and other in-country routes, and includes some who have since left the UK or the sector. ',
       'The Home Office expects about 196,000 care workers in all to be due to settle in 2026–30, about 146,000 of them meeting the requirements for the five-year route; "expected to qualify" applies that share to every quarter. ',
@@ -281,7 +263,7 @@
     document.querySelectorAll('#periodToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.period === state.period)));
     document.querySelectorAll('#countToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.count === state.count)));
     document.getElementById('panelTitle').textContent = state.count === 'qualify'
-      ? 'Care workers expected to qualify for settlement after five years' : 'Care worker visas granted';
+      ? 'Care and senior care workers expected to qualify for settlement after five years' : 'Care and senior care worker visas granted';
     hideTip();
     draw(lastWidth || Math.max(280, Math.floor(wrap.getBoundingClientRect().width) || 600));
   }
@@ -297,6 +279,6 @@
   window.CGD_READY = true;
 })();
 </script>
-<script src="shared/cgd-embed.js?v=20261109b"></script>
+<script src="shared/cgd-embed.js?v=20261110a"></script>
 </body>
 </html>

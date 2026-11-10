@@ -1,40 +1,8 @@
 # Event Tracking
 
-Two figures, each with its own `interactive_name`.
+Six figures, each with its own `interactive_name`, numbered as in the note (ILR v3).
 
-## Figure 2: care-wages-council-costs-map
-
-Events go to the parent page through `shared/cgd-embed.js` as `cgd_analytics` messages, with `interactive_name = care-wages-council-costs-map`.
-
-## Tracked events
-
-| Event | action_type | action_label | action_value | Fires on |
-|---|---|---|---|---|
-| `interactive_view` | – | – | – | First load (once) |
-| `interactive_engagement` | `filter` | `wage_benchmark` | `2.5%`, `4.5%`, `9%`, `12%` or `15%` | Benchmark button click |
-| `interactive_engagement` | `view_control` | `compare_with` | `ct` or `csp` | Measure toggle |
-| `interactive_engagement` | `view_control` | `pay_variant` | `uniform`, `floor` or `market` | "How pay rises across councils" toggle |
-| `interactive_engagement` | `filter` | `council_select` | `selected` or `cleared` | "Find a council" select |
-| `interactive_engagement` | `detail_open` | `council_map_click` | `selected` or `cleared` | Click or tap on a council |
-| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button (`cgd-embed.js` default rule) |
-
-## Not tracked
-
-- Hover and tooltips.
-- Council identity: 151 values would exceed the cardinality budget, so only `selected` or `cleared` is sent.
-- Scroll and resize.
-
-## Figure 1: care-wages-budget-lines
-
-| Event | action_type | action_label | action_value | Fires on |
-|---|---|---|---|---|
-| `interactive_view` | – | – | – | First load (once) |
-| `interactive_engagement` | `filter` | `wage_benchmark` | `2.5%`, `4.5%`, `9%`, `12%` or `15%` | Benchmark button click |
-| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button (`cgd-embed.js` default rule) |
-
-Not tracked: hover, tooltips, focus, scroll or resize.
-
-## Workforce map: care-wages-workforce-map
+## Figure 1: care-wages-workforce-map
 
 | Event | action_type | action_label | action_value | Fires on |
 |---|---|---|---|---|
@@ -45,35 +13,65 @@ Not tracked: hover, tooltips, focus, scroll or resize.
 | `interactive_engagement` | `detail_open` | `council_map_click` | `selected` or `cleared` | Click or tap on a council or circle |
 | `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
 
-## Figure 6 (blog numbering): care-wages-settlement-timing
+## Figure 2: care-wages-pay-premium
+
+| Event | action_type | action_label | action_value | Fires on |
+|---|---|---|---|---|
+| `interactive_view` | – | – | – | First load (once) |
+| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
+
+Not tracked: hover, tooltips, focus, scroll or resize.
+
+## Figure 3: care-wages-budget-lines
+
+| Event | action_type | action_label | action_value | Fires on |
+|---|---|---|---|---|
+| `interactive_view` | – | – | – | First load (once) |
+| `interactive_engagement` | `filter` | `wage_benchmark` | `4.5%`, `9%`, `12%`, `15%` or `20%` | Benchmark button click |
+| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button (`cgd-embed.js` default rule) |
+
+Not tracked: hover, tooltips, focus, scroll or resize.
+
+## Figure 4: care-wages-council-costs-map
+
+Events go to the parent page through `shared/cgd-embed.js` as `cgd_analytics` messages, with `interactive_name = care-wages-council-costs-map`.
+
+### Tracked events
+
+| Event | action_type | action_label | action_value | Fires on |
+|---|---|---|---|---|
+| `interactive_view` | – | – | – | First load (once) |
+| `interactive_engagement` | `filter` | `wage_benchmark` | `4.5%`, `9%`, `12%`, `15%` or `20%` | Benchmark button click |
+| `interactive_engagement` | `view_control` | `compare_with` | `ct` or `csp` | Measure toggle |
+| `interactive_engagement` | `view_control` | `pay_variant` | `uniform`, `floor` or `market` | "How pay rises across councils" toggle |
+| `interactive_engagement` | `filter` | `council_select` | `selected` or `cleared` | "Find a council" select |
+| `interactive_engagement` | `detail_open` | `council_map_click` | `selected` or `cleared` | Click or tap on a council |
+| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button (`cgd-embed.js` default rule) |
+
+### Not tracked
+
+- Hover and tooltips.
+- Council identity: 151 values would exceed the cardinality budget, so only `selected` or `cleared` is sent.
+- Scroll and resize.
+
+## Figure 5: care-wages-fiscal-breakeven
+
+| Event | action_type | action_label | action_value | Fires on |
+|---|---|---|---|---|
+| `interactive_view` | – | – | – | First load (once) |
+| `interactive_engagement` | `view_control` | `breakeven_case` | `cautious`, `central` or `generous` | "Assumptions" toggle |
+| `interactive_engagement` | `view_control` | `breakeven_counterfactual` | `1`, `0.5` or `0` | "Without international workers, care posts would be" toggle |
+| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
+
+Not tracked: hover, tooltips, focus, scroll or resize.
+
+## Figure 6: care-wages-settlement-timing
 
 | Event | action_type | action_label | action_value | Fires on |
 |---|---|---|---|---|
 | `interactive_view` | – | – | – | First load (once) |
 | `interactive_engagement` | `view_control` | `timing_period` | `quarter` or `year` | "Show by" toggle |
 | `interactive_engagement` | `view_control` | `timing_count` | `all` or `qualify` | "Count" toggle |
-| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
-
-Not tracked: hover, tooltips, focus, scroll or resize.
-
-## Figure 2 (blog numbering): care-wages-pay-premium
-
-| Event | action_type | action_label | action_value | Fires on |
-|---|---|---|---|---|
-| `interactive_view` | – | – | – | First load (once) |
-| `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
-
-Not tracked: hover, tooltips, focus, scroll or resize.
-
-
-
-## Figure 4 (blog numbering): care-wages-fiscal-breakeven
-
-| Event | action_type | action_label | action_value | Fires on |
-|---|---|---|---|---|
-| `interactive_view` | – | – | – | First load (once) |
-| `interactive_engagement` | `view_control` | `breakeven_case` | `cautious`, `central` or `generous` | "Assumptions" toggle |
-| `interactive_engagement` | `view_control` | `breakeven_counterfactual` | `1`, `0.5` or `0` | "Without these workers" toggle |
 | `interactive_engagement` | `view_control` | `fullscreen` | – | Fullscreen button |
 
 Not tracked: hover, tooltips, focus, scroll or resize.

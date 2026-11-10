@@ -1,16 +1,16 @@
 # What higher care wages would cost councils: interactive figures
 
-Six figures for CGD's blog on care wages and council budgets (numbered as in the blog):
+Six figures for CGD's note on care worker visas, settlement and council care budgets. They are numbered as in the note ("The UK's care worker visa policy", draft ILR v3), which sets the authoritative order; the earlier blog draft (v2) is superseded.
 - **Figure 1, `care-wage-workforce-map.html`:** how much each council's care workforce relies on non-EU workers, with vacancy rates.
 - **Figure 2, `care-wage-pay-premium.html`:** care pay above the minimum wage, the vacancy rate, care visas and the change in posts filled by British workers, 2018/19 to 2025/26.
 - **Figure 3, `care-wage-budget-lines.html`:** the England-wide extra cost of higher care wages compared with other council budget lines.
-- **Figure 4, `care-wage-fiscal-breakeven.html`:** care workers' cumulative savings to the public finances, by source, against the MAC's net lifetime cost.
-- **Figure 5, `care-wage-council-map.html`:** the cost to each council, as a map.
-- **Figure 6, `care-wage-settlement-timing.html`:** when care workers on care visas reach five years and can apply for settlement.
+- **Figure 4, `care-wage-council-map.html`:** the cost to each council, as a map.
+- **Figure 5, `care-wage-fiscal-breakeven.html`:** care workers' cumulative savings to the public finances, by source, against the MAC's net lifetime cost.
+- **Figure 6, `care-wage-settlement-timing.html`:** when care and senior care workers on care visas reach five years and can apply for settlement.
 
-All use the same shared layer; Figures 3 and 5 share the five benchmark buttons. The sections below describe the cost map first; the others have their own sections further down. Some older section headings use earlier numbering: "Figure 1: budget lines" is now Figure 3, "Figure 2: council map" is Figure 5, and "Figure 4: when care workers ... reach settlement" is Figure 6. Since 8 Nov 2026 the break-even chart is Figure 4.
+All use the same shared layer; Figures 3 and 4 share the five benchmark buttons. The sections below describe the cost map first; the others have their own sections further down. All headings and change notes below use the note's numbering (renumbered 10 Nov 2026: the cost map, previously Figure 5, is now Figure 4, and the fiscal chart, previously Figure 4, is now Figure 5).
 
-## Figure 2: council map
+## Figure 4: council cost map
 
 An interactive companion to CGD's blog on care wages and council budgets. The reader picks how much higher care labour costs are, using one of five benchmarks (4.5, 9, 12, 15 or 20%). Each English council is then shaded either by the council tax rise needed to cover the extra yearly cost (the cost as a share of its council tax requirement, assuming the full cost is passed on through council tax) or by the cost as a share of its core spending power.
 
@@ -32,8 +32,8 @@ The figure is built for a cgdev.org iframe and follows the CGD interactive-visua
 - Figure 1 (workforce map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-workforce-map.html
 - Figure 2 (pay, vacancies and visas): https://center-for-global-development.github.io/care-wages-council-map/care-wage-pay-premium.html
 - Figure 3 (budget lines): https://center-for-global-development.github.io/care-wages-council-map/care-wage-budget-lines.html
-- Figure 4 (net fiscal position): https://center-for-global-development.github.io/care-wages-council-map/care-wage-fiscal-breakeven.html
-- Figure 5 (cost map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-council-map.html
+- Figure 4 (cost map): https://center-for-global-development.github.io/care-wages-council-map/care-wage-council-map.html
+- Figure 5 (net fiscal position): https://center-for-global-development.github.io/care-wages-council-map/care-wage-fiscal-breakeven.html
 - Figure 6 (settlement timing): https://center-for-global-development.github.io/care-wages-council-map/care-wage-settlement-timing.html
 - Review page (all figures in iframes, as on cgdev.org): https://center-for-global-development.github.io/care-wages-council-map/preview.html
 
@@ -47,13 +47,13 @@ The figure is built for a cgdev.org iframe and follows the CGD interactive-visua
 | `data/pay-premium-data.js` | Generated: Skills for Care pay and vacancy series, and care visas by financial year. Do not edit by hand. |
 | `care-wage-budget-lines.html` | Figure 3 (`data-cgd-interactive-name="care-wages-budget-lines"`) |
 | `data/budget-lines-data.js` | Generated: the England cost per 1 percentage point and seven budget-line totals. Do not edit by hand. |
-| `care-wage-fiscal-breakeven.html` | Figure 4 (`data-cgd-interactive-name="care-wages-fiscal-breakeven"`) |
+| `care-wage-fiscal-breakeven.html` | Figure 5 (`data-cgd-interactive-name="care-wages-fiscal-breakeven"`) |
 | `data/fiscal-breakeven-data.js` | Generated by `scripts/21_fiscal_breakeven_data.py` from 'Fiscal ledger scenarios.xlsx': annual savings per care worker by source and case, the MAC cost per worker and expected years in care. Do not edit by hand. |
-| `care-wage-council-map.html` | Figure 5 (`data-cgd-interactive-name="care-wages-council-costs-map"`) |
+| `care-wage-council-map.html` | Figure 4 (`data-cgd-interactive-name="care-wages-council-costs-map"`) |
 | `data/care-wage-map-data.js` | Generated data: per-council cost per 1 percentage point, denominators, budget lines and SVG boundary paths. Do not edit by hand. |
 | `shared/` | Unmodified copies of the CGD shared layer (`cgd-figure.css`, `cgd-responsive.css`, `chart-core.js`, `dom.js`, `cgd-embed.js`) |
 | `care-wage-settlement-timing.html` | Figure 6 (`data-cgd-interactive-name="care-wages-settlement-timing"`) |
-| `data/settlement-timing-data.js` | Generated: care worker visas granted from abroad and in-country switchers, by the quarter holders reach five years. Do not edit by hand. |
+| `data/settlement-timing-data.js` | Generated: care and senior care worker visas granted from abroad and in-country switchers, by the quarter holders reach five years. Do not edit by hand. |
 | `preview.html` | Review page that embeds all six figures and applies the height each reports. Not for publication. |
 | `TRACKING.md` | Analytics events |
 
@@ -109,7 +109,7 @@ python -m http.server 8766
 - **Keyboard route:** councils are not tab stops. The keyboard route is the "Find a council" select, and the side panel is the text alternative.
 - **Council finder placement:** on the cost map the "Find a council" select sits in the map header, beside the legend title, to make room for the variant toggle within one screen. Verified 3 Nov 2026: 750px for England and at most 759px with any council selected, across all variants and both measures at 1280px; layout checks at 320, 390 and 700px clean.
 
-## Figure 1 (blog numbering): reliance on non-EU care workers
+## Figure 1: reliance on non-EU care workers
 
 `care-wage-workforce-map.html` (`data-cgd-interactive-name="care-wages-workforce-map"`): https://center-for-global-development.github.io/care-wages-council-map/care-wage-workforce-map.html
 
@@ -131,13 +131,13 @@ python -m http.server 8766
   - 745px tall on desktop in both views and with any council selected (the legend header is fixed at 70px so switching views doesn't jump);
   - screenshots were unavailable because the pane wasn't painting, so the layout was checked by measurement.
 
-## Figure 1: budget lines
+## Figure 3: budget lines
 
 - **Question:** how big is the England-wide extra cost compared with things councils already spend money on?
 - **Default view:** 9%.
 - **Bars:** ranked bars of seven budget lines (light blue), plus one bar for the extra cost of higher care wages (teal), which moves into its rank as the benchmark changes. A dashed teal line at the extra cost runs down the chart, so every bar can be read against it.
 - **Hover, tap or keyboard focus:** shows the line's value and the extra cost as a multiple, or a percentage, of it.
-- **Data:** the same lines as the blog's static Figure 1 and `14_wage_uplift.py`. The Social Care Grant and the Market Sustainability and Improvement Fund are 2025/26 grants. The other five are 2025/26 net revenue spending by the 151 councils with adult social care duties, using 2024/25 where a council has not yet reported.
+- **Data:** the same lines as the static budget-lines chart and `14_wage_uplift.py`. The Social Care Grant and the Market Sustainability and Improvement Fund are 2025/26 grants. The other five are 2025/26 net revenue spending by the 151 councils with adult social care duties, using 2024/25 where a council has not yet reported.
 - **Design decisions:**
   - The x-axis is fixed at £0–6bn across benchmarks.
   - On phones the labels and values sit above full-width bars.
@@ -168,11 +168,11 @@ Run in the built-in browser with Sofia Pro installed.
 - test fullscreen manually;
 - run the `qa/verify.mjs` gate, which needs Node and Playwright.
 
-## Figure 4: when care workers recruited from abroad reach settlement
+## Figure 6: when care workers recruited on care visas reach settlement
 
 `care-wage-settlement-timing.html` (`data-cgd-interactive-name="care-wages-settlement-timing"`)
 
-- **Now Figure 6 in the blog.** Updated 5 Nov 2026 to stack in-country switchers (see "In-country switchers" below).
+- Updated 5 Nov 2026 to stack in-country switchers (see "In-country switchers" below).
 - **Question:** when do the care workers recruited on care visas in 2021–25 reach five years on the visa, the point at which they can apply for settlement and are free to leave the sector?
 - **Data** (`data/settlement-timing-data.js`, written by `18_interactive_map_data.py`; run `python scripts/18_interactive_map_data.py --timing-only` to refresh just this file): Home Office sponsored work visas by occupation (SOC 2020), year ending June 2026. Health and Care Worker entry clearance grants to main applicants in caring personal services (SOC 613), each placed five years after the quarter of grant.
   - Only grants before the 12 May 2025 White Paper are kept: later entrants face a 10-year route under the 2 Nov 2026 decision. 2025 Q2 is split pro rata by days (41 of 91).
@@ -187,7 +187,7 @@ Run in the built-in browser with Sofia Pro installed.
 - **Limitations (in the notes):** excludes in-country switchers (the Home Office's 196,000 includes them); includes some who have since left; grant date stands in for entry date; reaching five years is not the same as leaving care.
 - **Verification (5 Nov 2026, after removing the subtitle and cards):** 653px tall at 1280px in all four views; at 320–375px the 2028 band label sits left of the band; no overflow or console errors.
 
-### In-country switchers (Figures 2 and 5)
+### In-country switchers (Figures 2 and 6)
 
 - **Source:** Home Office FOI 03109, published by the Migration Observatory as the underlying data for "International students entering the UK labour market" (2026). It gives certificates of sponsorship used for care worker and senior care worker roles, by quarter (2021 Q1 to 2026 Q1), split into out-of-country applications and in-country switchers from the Sponsored Study route.
 - **Cross-check:** the FOI out-of-country series matches the published entry-clearance grants closely (for example 34,301 vs 34,513 in 2023 Q3).
@@ -203,14 +203,14 @@ Run in the built-in browser with Sofia Pro installed.
 - **Two panels on a shared year axis:**
   - median care worker pay above the National Living Wage in force each March and the vacancy rate, all roles, on one percentage axis; the pay dots are labelled with the gap in pence an hour (the per cent/pence toggle was dropped on 5 Nov 2026);
   - care visas by financial year, stacked: granted from abroad and switched from a student visa in the UK.
-- **Data** (`data/pay-premium-data.js`, written by `18_interactive_map_data.py`): Skills for Care, The state of the adult social care sector and workforce in England 2026 (chart 80, p.123: median pay and NLW; chart 32, p.66: vacancy rate), independent sector; visa series as for Figure 5. Visa data start in 2021, so 2018/19 to 2020/21 show "N/A".
+- **Data** (`data/pay-premium-data.js`, written by `18_interactive_map_data.py`): Skills for Care, The state of the adult social care sector and workforce in England 2026 (chart 80, p.123: median pay and NLW; chart 32, p.66: vacancy rate), independent sector; visa series as for Figure 6. Visa data start in 2021, so 2018/19 to 2020/21 show "N/A".
 - **Interaction:** hovering, tapping or focusing a year shows every value for that year in one tooltip.
 - **Caveats (in the notes):** large NLW rises squeeze any lead over it; the 2021/22 vacancy spike also reflected the vaccine requirement for care home staff and the post-pandemic labour market.
 - **Verification (5 Nov 2026, single percentage axis):** 597px tall at 1280px, 690px at 375px; no overflow or console errors.
 
 
 
-## Figure 4: care workers' fiscal savings against the MAC's estimate
+## Figure 5: care workers' fiscal savings against the MAC's estimate
 
 `care-wage-fiscal-breakeven.html` (`data-cgd-interactive-name="care-wages-fiscal-breakeven"`), added 8 Nov 2026.
 
@@ -229,20 +229,26 @@ The bottom panel now pairs each year's visa bar with the change in posts filled 
 
 ## Changes, 9 Nov 2026
 
-- **Benchmarks:** 2.5% (NHS Band 2) dropped as too small to matter on the evidence; 20% (top of the 10–20% range, about £15.12 an hour) added. Figures 3 and 5 now offer 4.5, 9, 12, 15 and 20%; the budget-line axis (£0–6bn) already fits 20% (£3.41bn).
+- **Benchmarks:** 2.5% (NHS Band 2) dropped as too small to matter on the evidence; 20% (top of the 10–20% range, about £15.12 an hour) added. Figures 3 and 4 now offer 4.5, 9, 12, 15 and 20%; the budget-line axis (£0–6bn) already fits 20% (£3.41bn).
 - **Figure 2:** title "International workers have provided care labour at the margin"; subtitle on care pay converging with the minimum wage while posts filled by British workers fell. ("Fell", not "left": Skills for Care attributes the fall mainly to fewer British starters.)
-- **Figure 4:** title "Care workers' spillover benefits could exceed their estimated fiscal costs"; "net fiscally positive" replaces "break-even"; labels in regular weight with soft rounded backgrounds instead of bold haloed text; MAC line in the key; hover shows a dot on the stack top (no crosshair or vertical line); citation years in the notes; the notes now state the retention assumption behind "expected time in care"; clearer button tips.
-- **Figure 5:** title "Higher care pay could cost councils £60–£130 a year per home" (median council cost per dwelling at 9% and 20%; a longer council-tax wording wrapped to two lines and pushed the map to 777px). Subtitle carries the council tax framing.
+- **Figure 5:** title "Care workers' spillover benefits could exceed their estimated fiscal costs"; "net fiscally positive" replaces "break-even"; labels in regular weight with soft rounded backgrounds instead of bold haloed text; MAC line in the key; hover shows a dot on the stack top (no crosshair or vertical line); citation years in the notes; the notes now state the retention assumption behind "expected time in care"; clearer button tips.
+- **Figure 4:** title "Higher care pay could cost councils £60–£130 a year per home" (median council cost per dwelling at 9% and 20%; a longer council-tax wording wrapped to two lines and pushed the map to 777px). Subtitle carries the council tax framing.
 - **Shared layer:** `.viz-sub` no longer has `max-width:70ch` (it wrapped subtitles at about half the figure width, worst in fullscreen); now `max-width:none; text-wrap:pretty`. This is a local change to the CGD shared CSS. Version stamp 20261109b.
 - **Heights at 1280px:** 746, 626, 554, 663, 750, 655.
 
-## Figure 4 update (9 Nov 2026): same price basis as the MAC
+## Figure 5 update (9 Nov 2026): same price basis as the MAC
 
 Savings are now converted from 2025/26 to 2022/23 prices (HM Treasury GDP deflator, Sept 2026: 0.8846) and grown at 1.8% a year in real terms (the MAC's baseline growth in spending and taxes) before discounting at 3%, so they match the MAC's present value. `data/fiscal-breakeven-data.js` now carries `g` and `defl`; cumulative savings = annual × defl × (1 − ρ^t)/(r − g), with ρ = (1 + g)/(1 + r). Central years to net fiscally positive: 7.0 (posts unfilled) to 8.7 (filled by higher pay), 7.8 half and half; cautious 21–32; generous 2.9–5.8. The panel heading's annual figure stays in 2025/26 prices.
 
-## Figure 4 update (9 Nov 2026, later): tenure and all routes
+## Figure 5 update (9 Nov 2026, later): tenure and all routes
 
 - **Expected time in care:** the cohort behind the MAC's figure is those expected to settle, and settling requires five years' sponsored work, so retention in years 1–5 is now 100%. After settlement, 25% a year leave (40% cautious, 15% generous). Expected years in care: 6.5 / 8.0 / 10.7.
 - **Wage saving:** now covers the care councils buy, their own in-house services and direct payments (£210m per 1% uplift, was £170m for bought-in care only).
 - **Attribution:** stated in the notes. The settling cohort is credited with the sector-wide effect, because international recruits supplied the marginal labour; dependants are not counted separately.
 - **Result:** central 6.8–7.0 years to net fiscally positive (6.9 partly filled), against 8.0 expected years in care. Cautious 15–32; generous 2.9–4.7.
+
+## Figure 6 update (10 Nov 2026): senior care workers; no "Now" line
+
+- **Who is counted:** the visa series is occupation group 613 (caring personal services), mainly care workers (6135) and senior care workers (6136). Senior care workers have been eligible since December 2020 (Skilled Worker route at RQF level 3), care workers only since 15 February 2022, so the bars before 2027 (about 4,500 in 2026, 3,100 of them in Q4) are mainly senior care workers. Title, panel titles, button tip, chart label and notes now say "care and senior care workers"; the notes add that both roles closed to recruitment from abroad on 22 July 2025.
+- **"Now" line removed,** along with the paler shading for quarters already passed and the "already passed" tooltip row. The static PNG (`16_blog_map.py`) matches.
+- **Renumbering:** figures now follow the note's order (see the top of this file).
